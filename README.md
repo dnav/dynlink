@@ -2,7 +2,7 @@
 
 This is the working area for the Working Group internet-draft, "Dynamic Resource Linking for Constrained RESTful Environments".
 
-* [Editor's copy](https://core-wg.github.io/dynlink/)
+* [Editor's copy](https://core-wg.github.io/dynlink/) [![Build Status](https://travis-ci.org/core-wg/dynlink.svg?branch=master)](https://travis-ci.org/core-wg/dynlink)
 * [Working Group Draft] (https://tools.ietf.org/html/draft-ietf-core-dynlink)
 
 
