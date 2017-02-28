@@ -2,7 +2,7 @@
 title: "Dynamic Resource Linking for Constrained RESTful Environments"
 abbrev: Dynamic Resource Linking for CoRE
 docname: draft-ietf-core-dynlink-latest
-date: 2016-10-28
+date: 2017-02-24
 category: info
 
 ipr: trust200902
@@ -47,7 +47,7 @@ author:
   city: ''
   code: ''
   country: Australia
-  email: Christian.Groves@nteczone.com
+  email: cngroves.std@gmail.com
 
 normative:
   RFC2119:
@@ -67,8 +67,6 @@ informative:
  Editor's note:
  
  o The git repository for the draft is found at https://github.com/core-wg/dynlink
- 
- o Examples need to be added.
 
 --- middle
 
@@ -151,8 +149,8 @@ Web link attributes allow a fine-grained control of the type of state synchroniz
 | Minimum Period (s)| pmin      | xsd:integer (>0) |
 | Maximum Period (s)| pmax      | xsd:integer (>0) |
 | Change Step       | st        | xsd:decimal (>0) |
-| Greater Than      | gt        | xsd:decimal      |
-| Less Than         | lt        | xsd:decimal      |
+| Greater Than      | gth       | xsd:decimal      |
+| Less Than         | lth       | xsd:decimal      |
 {: #weblinkattributes title="Binding Attributes Summary"}
  
 ###Bind Method (bind)
@@ -171,21 +169,21 @@ When present, the change step indicates how much the value of a resource SHOULD 
 
 Note: Due to the state synchronization based update of STint it may result in that resource value received in two sequential state synchronizations differs by more than st.
 
-###Greater Than (gt) {#gt}
-When present, Greater Than indicates the upper limit value the resource value SHOULD cross before triggering a new state synchronization. State synchronization only occurs when the resource value exceeds the specified upper limit value. The actual resource value is used for the synchronization rather than the gt value. If the value continues to rise, no new state synchronizations are generated as a result of gt. If the value drops below the upper limit value and then exceeds the upper limit then a new state synchronization is generated. 
+###Greater Than (gth) {#gth}
+When present, Greater Than indicates the upper limit value the resource value SHOULD cross before triggering a new state synchronization. State synchronization only occurs when the resource value exceeds the specified upper limit value. The actual resource value is used for the synchronization rather than the gth value. If the value continues to rise, no new state synchronizations are generated as a result of gth. If the value drops below the upper limit value and then exceeds the upper limit then a new state synchronization is generated. 
 
-###Less Than (lt) {#lt}
-When present, Less Than indicates the lower limit value the resource value SHOULD cross before triggering a new state synchronization. State synchronization only occurs when the resource value is less than the specified lower limit value. The actual resource value is used for the synchronization rather than the lt value. If the value continues to fall no new state synchronizations are generated as a result of lt. If the value rises above the lower limit value and then drops below the lower limit then a new state synchronization is generated. 
+###Less Than (lth) {#lth}
+When present, Less Than indicates the lower limit value the resource value SHOULD cross before triggering a new state synchronization. State synchronization only occurs when the resource value is less than the specified lower limit value. The actual resource value is used for the synchronization rather than the lth value. If the value continues to fall no new state synchronizations are generated as a result of lth. If the value rises above the lower limit value and then drops below the lower limit then a new state synchronization is generated. 
 
 ### Attribute Interactions
 
-Pmin, pmax, st, gt and lt may be present in the same query. 
+Pmin, pmax, st, gth and lth may be present in the same query. 
 
-If pmin and pmax are present in a query then they take precedence over the other parameters. Thus even if st, gt or lt are met, if pmin has not been exceeded then no state synchronization occurs. Likewise if st, gt or lt have not been met and pmax time has expired then state synchronization occurs. The current value of the resource is used for the synchronization. If pmin time is exceeded and st, gt or lt are met then the current value of the resource is synchronized. If st is also included, a state synchronization resulting from pmin or pmax updates STinit with the synchronized value.
+If pmin and pmax are present in a query then they take precedence over the other parameters. Thus even if st, gth or lth are met, if pmin has not been exceeded then no state synchronization occurs. Likewise if st, gth or lth have not been met and pmax time has expired then state synchronization occurs. The current value of the resource is used for the synchronization. If pmin time is exceeded and st, gth or lth are met then the current value of the resource is synchronized. If st is also included, a state synchronization resulting from pmin or pmax updates STinit with the synchronized value.
 
-If gt and lt are included gt MUST be greater than lt otherwise an error CoAP error code 4.00 "Bad Request" (or equivalent) MUST be returned.
+If gth and lth are included gth MUST be greater than lth otherwise an error CoAP error code 4.00 "Bad Request" (or equivalent) MUST be returned.
 
-If st is included in a query with a gt or lt attribute then state synchronizations occur only when the conditions described by st AND gt or st AND gl are met. 
+If st is included in a query with a gth or lth attribute then state synchronizations occur only when the conditions described by st AND gth or st AND gl are met. 
 
 
 Binding Table     {#binding_table}
@@ -237,8 +235,8 @@ These query parameters MUST be treated as resources that are read using GET and 
 | Minimum Period | /{resource}?pmin | xsd:integer (>0) |
 | Maximum Period | /{resource}?pmax | xsd:integer (>0) |
 | Change Step    | /{resource}?st   | xsd:decimal (>0) |
-| Less Than      | /{resource}?lt   | xsd:decimal      |
-| Greater Than   | /{resource}?gt   | xsd:decimal      |
+| Less Than      | /{resource}?lth  | xsd:decimal      |
+| Greater Than   | /{resource}?gth  | xsd:decimal      |
 {: #resobsattr title="Resource Observation Attribute Summary"}
 
 Minimum Period: 
@@ -251,10 +249,10 @@ Change Step:
 : As per {{st}}
 
 Greater Than: 
-: As per {{gt}}
+: As per {{gth}}
 
 Less Than: 
-: As per {{lt}}
+: As per {{lth}}
  
 Security Considerations   {#Security}
 =======================
@@ -269,9 +267,7 @@ Interface Description
 The specification registers the "binding" CoRE interface description link target attribute value as per {{RFC6690}}.
 
 Attribute Value:
-: binding
-
-Editor's note: RFC6690 actually indicates the use of core. for CoRE WG documents. Therefore it probably is more correct to register core.binding . However this may cause a problem for existing implementations. One approach may be to register two attributes "binding" and "core.binding."
+: core.binding
 
 Description: The binding interface is used to manipulate a binding table which describes the link bindings between source and destination resources for the purposes of synchronizing their content.
 
@@ -305,6 +301,14 @@ Acknowledgement is given to colleagues from the SENSEI project who were critical
 Changelog
 =========
 
+draft-ietf-core-dynlink-02
+
+* General: Changed the name of the greater than attribute "gt" to "gth" and the name of the less than attribute "lt" to "lth" due to conlict with the core resource directory draft lifetime "lt" attribute.
+
+* Clause 6.1: Addressed the editor's note by changing the link target attribute to "core.binding".
+
+* Added Appendix A for examples.
+
 draft-ietf-core-dynlink-01
 
 * General: The term state synchronization has been introduced to describe the process of synchronization between destination and source resources.
@@ -331,6 +335,95 @@ draft-groves-core-dynlink Draft Initial Version 00:
 
 * The WADL description has been dropped in favour of a thorough textual description of the REST API.
 
+--- back
 
+Examples
+========
 
+This appendix provides some examples of the use of binding attribute / observe attributes.
+
+Note: For brevity the only the method or response code is shown in the header field.
+
+Greater Than (gth) example
+--------------------------
+
+~~~~
+     Observed   CLIENT  SERVER     Actual
+ t   State         |      |         State
+     ____________  |      |  ____________
+ 1                 |      |
+ 2    unknown      |      |     18.5 Cel
+ 3                 +----->|                  Header: GET 
+ 4                 | GET  |                   Token: 0x4a
+ 5                 |      |                Uri-Path: temperature
+ 6                 |      |               Uri-Query: gth="25"
+ 7                 |      |                 Observe: 0 (register)
+ 8                 |      |
+ 9   ____________  |<-----+                  Header: 2.05 
+10                 | 2.05 |                   Token: 0x4a
+11    18.5 Cel     |      |                 Observe: 9
+12                 |      |                 Payload: "18.5 Cel"
+13                 |      |                 
+14                 |      |
+15                 |      |  ____________
+16   ____________  |<-----+                  Header: 2.05 
+17                 | 2.05 |     26 Cel        Token: 0x4a
+18    26 Cel       |      |                 Observe: 16
+29                 |      |                 Payload: "26 Cel"
+20                 |      |                 
+21                 |      |
+~~~~
+{: #figbindexp1 title="Client Registers and Receives one Notification of the Current State and One of a New State when it passes through the greather than threshold of 25."}
+
+Greater Than (gth) and Period Max (pmax) example
+----------------------------------
+
+~~~~
+     Observed   CLIENT  SERVER     Actual
+ t   State         |      |         State
+     ____________  |      |  ____________
+ 1                 |      |
+ 2    unknown      |      |     18.5 Cel
+ 3                 +----->|                  Header: GET 
+ 4                 | GET  |                   Token: 0x4a
+ 5                 |      |                Uri-Path: temperature
+ 6                 |      |         Uri-Query: pmax="20";gth="25"
+ 7                 |      |                 Observe: 0 (register)
+ 8                 |      |
+ 9   ____________  |<-----+                  Header: 2.05 
+10                 | 2.05 |                   Token: 0x4a
+11    18.5 Cel     |      |                 Observe: 9
+12                 |      |                 Payload: "18.5 Cel"
+13                 |      |                 
+14                 |      |
+15                 |      |
+16                 |      |
+17                 |      |
+18                 |      |
+19                 |      |
+20                 |      |
+21                 |      |
+22                 |      |
+23                 |      |
+24                 |      |
+25                 |      |
+26                 |      |
+27                 |      |
+28                 |      |
+29                 |      |  ____________
+30   ____________  |<-----+                  Header: 2.05
+31                 | 2.05 |     23 Cel        Token: 0x4a
+32    23 Cel       |      |                 Observe: 30
+33                 |      |                 Payload: "23 Cel"
+34                 |      |                 
+35                 |      |
+36                 |      |  ____________
+37   ____________  |<-----+                  Header: 2.05 
+38                 | 2.05 |     26 Cel        Token: 0x4a
+39    26 Cel       |      |                 Observe: 37
+40                 |      |                 Payload: "26 Cel"
+41                 |      |                 
+42                 |      |
+~~~~
+{: #figbindexp2 title="Client Registers and Receives one Notification of the Current State, one when pmax time expires and one of a new State when it passes through the greather than threshold of 25."}
 
