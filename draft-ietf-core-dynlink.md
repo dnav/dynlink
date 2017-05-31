@@ -275,7 +275,7 @@ Reference: This specification. Note to RFC editor: please insert the RFC of this
 
 Notes: None
 
-Link Relations Type
+Link Relation Type
 -------------------
 This specification registers the new "bounto" link relation type as per {{RFC5988}}.
 
