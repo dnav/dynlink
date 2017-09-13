@@ -14,6 +14,15 @@ stand_alone: yes
 pi: [toc, sortrefs, symrefs]
 
 author:
+- role: editor
+  ins: B. Silverajan
+  name: Bilhanan Silverajan
+  org: Tampere University of Technology
+  street: Korkeakoulunkatu 10
+  city: Tampere
+  code: 'FI-33720'
+  country: Finland
+  email: bilhanan.silverajan@tut.fi
 - ins: Z. Shelby
   name: Zach Shelby
   organization: ARM
@@ -48,6 +57,14 @@ author:
   code: ''
   country: Australia
   email: cngroves.std@gmail.com
+- ins: J. Zhu
+  name: Julian Zhu
+  org: Huawei
+  street: No.127 Jinye Road, Huawei Base, High-Tech Development District
+  city: Xi’an, Shaanxi Province
+  code: ''
+  country: China
+  email: jintao.zhu@huawei.com
 
 normative:
   RFC2119:
@@ -202,7 +219,7 @@ The Methods column defines the REST methods supported by the interface, which ar
 | Binding   | core.bnd | GET, POST, DELETE | link-format     |
 {: #intdesc title="Binding Interface Description"}
 
-The Binding interface is used to manipulate a binding table. A request with a POST method and a content format of application/link-format simply appends new bindings to the table. All links in the payload MUST have a relation type &quot;boundTo&quot;. A GET request simply returns the current state of a binding table whereas a DELETE request empties the table. Individual entries may be dreeleted from the table by specifying the resource path in a DELETE request.
+The Binding interface is used to manipulate a binding table. A request with a POST method and a content format of application/link-format simply appends new bindings to the table. All links in the payload MUST have a relation type &quot;boundTo&quot;. A GET request simply returns the current state of a binding table whereas a DELETE request empties the table. Individual entries may be deleted from the table by specifying the resource path in a DELETE request.
 
 The following example shows requests for adding, retrieving and deleting bindings in a binding table.
 
@@ -277,7 +294,7 @@ Notes: None
 
 Link Relation Type
 -------------------
-This specification registers the new "bounto" link relation type as per {{RFC5988}}.
+This specification registers the new "boundto" link relation type as per {{RFC5988}}.
 
 Relation Name: 
 : boundto
