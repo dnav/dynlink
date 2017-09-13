@@ -166,8 +166,8 @@ Web link attributes allow a fine-grained control of the type of state synchroniz
 | Minimum Period (s)| pmin      | xsd:integer (>0) |
 | Maximum Period (s)| pmax      | xsd:integer (>0) |
 | Change Step       | st        | xsd:decimal (>0) |
-| Greater Than      | gth       | xsd:decimal      |
-| Less Than         | lth       | xsd:decimal      |
+| Greater Than      | gt       | xsd:decimal      |
+| Less Than         | lt       | xsd:decimal      |
 {: #weblinkattributes title="Binding Attributes Summary"}
  
 ###Bind Method (bind)
@@ -186,21 +186,21 @@ When present, the change step indicates how much the value of a resource SHOULD 
 
 Note: Due to the state synchronization based update of STint it may result in that resource value received in two sequential state synchronizations differs by more than st.
 
-###Greater Than (gth) {#gth}
-When present, Greater Than indicates the upper limit value the resource value SHOULD cross before triggering a new state synchronization. State synchronization only occurs when the resource value exceeds the specified upper limit value. The actual resource value is used for the synchronization rather than the gth value. If the value continues to rise, no new state synchronizations are generated as a result of gth. If the value drops below the upper limit value and then exceeds the upper limit then a new state synchronization is generated. 
+###Greater Than (gt) {#gt}
+When present, Greater Than indicates the upper limit value the resource value SHOULD cross before triggering a new state synchronization. State synchronization only occurs when the resource value exceeds the specified upper limit value. The actual resource value is used for the synchronization rather than the gt value. If the value continues to rise, no new state synchronizations are generated as a result of gt. If the value drops below the upper limit value and then exceeds the upper limit then a new state synchronization is generated. 
 
-###Less Than (lth) {#lth}
-When present, Less Than indicates the lower limit value the resource value SHOULD cross before triggering a new state synchronization. State synchronization only occurs when the resource value is less than the specified lower limit value. The actual resource value is used for the synchronization rather than the lth value. If the value continues to fall no new state synchronizations are generated as a result of lth. If the value rises above the lower limit value and then drops below the lower limit then a new state synchronization is generated. 
+###Less Than (lt) {#lt}
+When present, Less Than indicates the lower limit value the resource value SHOULD cross before triggering a new state synchronization. State synchronization only occurs when the resource value is less than the specified lower limit value. The actual resource value is used for the synchronization rather than the lt value. If the value continues to fall no new state synchronizations are generated as a result of lt. If the value rises above the lower limit value and then drops below the lower limit then a new state synchronization is generated. 
 
 ### Attribute Interactions
 
-Pmin, pmax, st, gth and lth may be present in the same query. 
+Pmin, pmax, st, gt and lt may be present in the same query. 
 
-If pmin and pmax are present in a query then they take precedence over the other parameters. Thus even if st, gth or lth are met, if pmin has not been exceeded then no state synchronization occurs. Likewise if st, gth or lth have not been met and pmax time has expired then state synchronization occurs. The current value of the resource is used for the synchronization. If pmin time is exceeded and st, gth or lth are met then the current value of the resource is synchronized. If st is also included, a state synchronization resulting from pmin or pmax updates STinit with the synchronized value.
+If pmin and pmax are present in a query then they take precedence over the other parameters. Thus even if st, gt or lt are met, if pmin has not been exceeded then no state synchronization occurs. Likewise if st, gt or lt have not been met and pmax time has expired then state synchronization occurs. The current value of the resource is used for the synchronization. If pmin time is exceeded and st, gt or lt are met then the current value of the resource is synchronized. If st is also included, a state synchronization resulting from pmin or pmax updates STinit with the synchronized value.
 
-If gth and lth are included gth MUST be greater than lth otherwise an error CoAP error code 4.00 "Bad Request" (or equivalent) MUST be returned.
+If gt and lt are included gt MUST be greater than lt otherwise an error CoAP error code 4.00 "Bad Request" (or equivalent) MUST be returned.
 
-If st is included in a query with a gth or lth attribute then state synchronizations occur only when the conditions described by st AND gth or st AND gl are met. 
+If st is included in a query with a gt or lt attribute then state synchronizations occur only when the conditions described by st AND gt or st AND gl are met. 
 
 
 Binding Table     {#binding_table}
@@ -252,8 +252,8 @@ These query parameters MUST be treated as resources that are read using GET and 
 | Minimum Period | /{resource}?pmin | xsd:integer (>0) |
 | Maximum Period | /{resource}?pmax | xsd:integer (>0) |
 | Change Step    | /{resource}?st   | xsd:decimal (>0) |
-| Less Than      | /{resource}?lth  | xsd:decimal      |
-| Greater Than   | /{resource}?gth  | xsd:decimal      |
+| Less Than      | /{resource}?lt  | xsd:decimal      |
+| Greater Than   | /{resource}?gt  | xsd:decimal      |
 {: #resobsattr title="Resource Observation Attribute Summary"}
 
 Minimum Period: 
@@ -266,10 +266,10 @@ Change Step:
 : As per {{st}}
 
 Greater Than: 
-: As per {{gth}}
+: As per {{gt}}
 
 Less Than: 
-: As per {{lth}}
+: As per {{lt}}
  
 Security Considerations   {#Security}
 =======================
@@ -318,6 +318,12 @@ Acknowledgement is given to colleagues from the SENSEI project who were critical
 Changelog
 =========
 
+draft-ietf-core-dynlink-03
+
+* General: Reverted to using "gt" and "lt" from "gth" and "lth" for this draft owing to concerns raised that the attributes are already used in LwM2M with the original names "gt" and "lt".
+
+* New author and editor added. 
+
 draft-ietf-core-dynlink-02
 
 * General: Changed the name of the greater than attribute "gt" to "gth" and the name of the less than attribute "lt" to "lth" due to conlict with the core resource directory draft lifetime "lt" attribute.
@@ -361,7 +367,7 @@ This appendix provides some examples of the use of binding attribute / observe a
 
 Note: For brevity the only the method or response code is shown in the header field.
 
-Greater Than (gth) example
+Greater Than (gt) example
 --------------------------
 
 ~~~~
@@ -373,7 +379,7 @@ Greater Than (gth) example
  3                 +----->|                  Header: GET 
  4                 | GET  |                   Token: 0x4a
  5                 |      |                Uri-Path: temperature
- 6                 |      |               Uri-Query: gth="25"
+ 6                 |      |               Uri-Query: gt="25"
  7                 |      |                 Observe: 0 (register)
  8                 |      |
  9   ____________  |<-----+                  Header: 2.05 
@@ -392,7 +398,7 @@ Greater Than (gth) example
 ~~~~
 {: #figbindexp1 title="Client Registers and Receives one Notification of the Current State and One of a New State when it passes through the greather than threshold of 25."}
 
-Greater Than (gth) and Period Max (pmax) example
+Greater Than (gt) and Period Max (pmax) example
 ----------------------------------
 
 ~~~~
@@ -404,7 +410,7 @@ Greater Than (gth) and Period Max (pmax) example
  3                 +----->|                  Header: GET 
  4                 | GET  |                   Token: 0x4a
  5                 |      |                Uri-Path: temperature
- 6                 |      |         Uri-Query: pmax="20";gth="25"
+ 6                 |      |         Uri-Query: pmax="20";gt="25"
  7                 |      |                 Observe: 0 (register)
  8                 |      |
  9   ____________  |<-----+                  Header: 2.05 
