@@ -2,7 +2,7 @@
 title: "Dynamic Resource Linking for Constrained RESTful Environments"
 abbrev: Dynamic Resource Linking for CoRE
 docname: draft-ietf-core-dynlink-latest
-date: 2017-02-24
+date: 2018-03-18
 category: info
 
 ipr: trust200902
@@ -14,15 +14,6 @@ stand_alone: yes
 pi: [toc, sortrefs, symrefs]
 
 author:
-- role: editor
-  ins: B. Silverajan
-  name: Bilhanan Silverajan
-  org: Tampere University of Technology
-  street: Korkeakoulunkatu 10
-  city: Tampere
-  code: 'FI-33720'
-  country: Finland
-  email: bilhanan.silverajan@tut.fi
 - ins: Z. Shelby
   name: Zach Shelby
   organization: ARM
@@ -32,7 +23,7 @@ author:
   country: FINLAND
   phone: "+1-408-203-9434"
   email: zach.shelby@arm.com
-- ins: Z.V. Vial
+- ins: M. Vial
   name: Matthieu Vial
   organization: Schneider-Electric
   street: '' 
@@ -58,13 +49,22 @@ author:
   country: Australia
   email: cngroves.std@gmail.com
 - ins: J. Zhu
-  name: Julian Zhu
+  name: Jintao Zhu
   org: Huawei
   street: No.127 Jinye Road, Huawei Base, High-Tech Development District
   city: Xi’an, Shaanxi Province
   code: ''
   country: China
-  email: jintao.zhu@huawei.com
+  email: jintao.zhu@huawei.com 
+- role: editor
+  ins: B. Silverajan
+  name: Bilhanan Silverajan
+  org: Tampere University of Technology
+  street: Korkeakoulunkatu 10
+  city: Tampere
+  code: 'FI-33720'
+  country: Finland
+  email: bilhanan.silverajan@tut.fi
 
 normative:
   RFC2119:
@@ -105,6 +105,9 @@ Link Binding:
 
 State Synchronization:
 : Depending on the binding method (Polling, Observe, Push) different REST methods may be used to synchronize the resource values between a source and a destination. The process of using a REST method to achieve this is defined as "State Synchronization". The endpoint triggering the state synchronization is the synchronization initiator.
+
+Notification Band:  
+: A resource value range that results in state sychronization.  The value range may be bounded by a minimum and maximum value or may be unbounded having either a minimum or maximum value.
 
 Link Bindings        {#bindings}
 =============
@@ -168,6 +171,7 @@ Web link attributes allow a fine-grained control of the type of state synchroniz
 | Change Step       | st        | xsd:decimal (>0) |
 | Greater Than      | gt       | xsd:decimal      |
 | Less Than         | lt       | xsd:decimal      |
+| Notification Band | band     | xsd:boolean      |
 {: #weblinkattributes title="Binding Attributes Summary"}
  
 ###Bind Method (bind)
@@ -192,6 +196,18 @@ When present, Greater Than indicates the upper limit value the resource value SH
 ###Less Than (lt) {#lt}
 When present, Less Than indicates the lower limit value the resource value SHOULD cross before triggering a new state synchronization. State synchronization only occurs when the resource value is less than the specified lower limit value. The actual resource value is used for the synchronization rather than the lt value. If the value continues to fall no new state synchronizations are generated as a result of lt. If the value rises above the lower limit value and then drops below the lower limit then a new state synchronization is generated. 
 
+###Notification Band (band) {#band}
+
+The notification band attribute allows a bounded or unbounded (based on a minimum or maximum) value range that may trigger multiple state synchronizations. This enables use cases where different ranges results in differing behaviour. For example: monitoring the temperature of machinery. Whilst the temperature is in the normal operating range only periodic observations are needed. However as the temperature moves to more abnormal ranges more frequent synchronization/reporting may be needed.
+
+Without a notification band, a transition across a less than (lt), or greater than (gt) limit only generates one notification.  This means that it is not possible to describe a case where multiple notifications are sent so long as the limit is exceeded.
+
+The band attribute works as a modifier to the behaviour of gt and lt. Therefore, if band is present in a query, gt, lt or both, MUST be included.
+
+When band is present with the lt attribute, it defines the lower bound for the notification band (notification band minimum). State synchronization occurs when the resource value is equal to or above the notification band minimum. If lt is not present there is no minimum value for the band.
+
+When band is present with the gt attribute, it defines the upper bound for the notification band (notification band maximum). State synchronization occurs when the resource value is equal to or below the notification band maximum. If gt is not present there is no maximum value for the band.
+
 ### Attribute Interactions
 
 Pmin, pmax, st, gt and lt may be present in the same query. 
@@ -200,7 +216,16 @@ If pmin and pmax are present in a query then they take precedence over the other
 
 If gt and lt are included gt MUST be greater than lt otherwise an error CoAP error code 4.00 "Bad Request" (or equivalent) MUST be returned.
 
-If st is included in a query with a gt or lt attribute then state synchronizations occur only when the conditions described by st AND gt or st AND gl are met. 
+If st is included in a query with a gt or lt attribute then state synchronizations occur only when the conditions described by st AND gt or st AND lt are met. 
+
+To enable an notification band at least the notification band minimum or maximum MUST be set. If both the notification band minimum and maximum are set then a finite band is specified. State synchronization occurs whenever the resource value is between the notification band minimum and maximum or is equal to the notification band minimum or maximum. If only the notification band minimum or maximum is set then the band has an open bound. That is all values above the notification band minimum or all values below the notification band maximum will be synchronized.
+
+When using multiple resource bindings (e.g. multiple Observations of resource) with different bands, consideration should be given to the resolution of the resource value when setting sequential bands. For example: Given BandA (Abmn=10, Bbmx=20) and BandB (Bbmn=21, Bbmx=30). If the resource value returns an integer then notifications for values between and inclusive of 10 and 30 will be triggered. Whereas if the resolution is to one decimal point (0.1) then notifications for values 20.1 to 20.9 will not be triggered.
+
+Note: The use of the notification band minimum and maximum allow for a synchronization whenever a change in the resource value occurs. Theoretically this could occur in-line with the server internal sample period for the determining the resource value. Implementors SHOULD consider the resolution needed before updating the resource, e.g. updating the resource when a temperature sensor value changes by 0.001 degree versus 1 degree.
+
+If pmin and pmax are present in a query then they take precedence over the other parameters. Thus even if the notification band minimum and maximum are met if pmin has not been exceeded then no state synchronization occurs. Likewise if the notification band minimum and maximum have not been met and pmax time has expired then state synchronization occurs. The current value of the resource is used for the synchronization. If pmin time is exceeded and the notification band minimum and maximum are met then the current value of the resource is synchronized. If st is also included, a state synchronization resulting from pmin or pmax updates STinit with the synchronized value. If change step (st) is included in a query with the notification band minimum or maximum then state synchronization will occur whilst the resource value is in the notification band AND the resource value differs from STinit by the change step.
+
 
 
 Binding Table     {#binding_table}
@@ -248,12 +273,13 @@ When resource interfaces following this specification are made available over Co
 
 These query parameters MUST be treated as resources that are read using GET and updated using PUT, and MUST NOT be included in the Observe request. Multiple parameters MAY be updated at the same time by including the values in the query string of a PUT. Before being updated, these parameters have no default value.
 
-| Resource       | Parameter        | Data Format      |
+| Attribute Name | Parameter        | Data Format      |
 | Minimum Period | /{resource}?pmin | xsd:integer (>0) |
 | Maximum Period | /{resource}?pmax | xsd:integer (>0) |
 | Change Step    | /{resource}?st   | xsd:decimal (>0) |
 | Less Than      | /{resource}?lt  | xsd:decimal      |
 | Greater Than   | /{resource}?gt  | xsd:decimal      |
+| Notification Band | /{resource}?band  | xsd:boolean      |
 {: #resobsattr title="Resource Observation Attribute Summary"}
 
 Minimum Period: 
@@ -270,6 +296,9 @@ Greater Than:
 
 Less Than: 
 : As per {{lt}}
+
+Notification Band:
+: As per {{band}}
  
 Security Considerations   {#Security}
 =======================
@@ -317,6 +346,11 @@ Acknowledgement is given to colleagues from the SENSEI project who were critical
 
 Changelog
 =========
+
+draft-ietf-core-dynlink-05
+
+* Addition of a band modifier for gt and lt, adapted from draft-groves-core-obsattr
+* Removed statement prescribing gt MUST be greater than lt
 
 draft-ietf-core-dynlink-03
 
