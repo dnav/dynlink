@@ -2,7 +2,7 @@
 title: "Dynamic Resource Linking for Constrained RESTful Environments"
 abbrev: Dynamic Resource Linking for CoRE
 docname: draft-ietf-core-dynlink-latest
-date: 2018-03-18
+date: 2018-04-05
 category: info
 
 ipr: trust200902
