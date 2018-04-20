@@ -2,7 +2,7 @@
 title: "Dynamic Resource Linking for Constrained RESTful Environments"
 abbrev: Dynamic Resource Linking for CoRE
 docname: draft-ietf-core-dynlink-latest
-date: 2018-04-05
+#date: 2018-04-05
 category: info
 
 ipr: trust200902
@@ -67,19 +67,18 @@ author:
   email: bilhanan.silverajan@tut.fi
 
 normative:
-  RFC2119:
-  RFC5988:
-  RFC6690:
+  RFC8288: link
+  RFC6690: link-format
 
-  
+
 informative:
-  RFC7252:
-  RFC7641:
-  
+  RFC7252: coap
+  RFC7641: observe
+
 
 --- abstract
 
- For CoAP {{RFC7252}} Dynamic linking of state updates between resources, either on an endpoint or between endpoints, is defined with the concept of Link Bindings. This specification defines conditional observation attributes that work with Link Bindings or with CoAP Observe {{RFC7641}}.
+ For CoAP (RFC7252), Dynamic linking of state updates between resources, either on an endpoint or between endpoints, is defined with the concept of Link Bindings. This specification defines conditional observation attributes that work with Link Bindings or with CoAP Observe (RFC7641).
  
  Editor's note:
  
@@ -90,15 +89,16 @@ informative:
 Introduction        {#introduction}
 ============
 
-IETF Standards for machine to machine communication in constrained environments describe a REST protocol and a set of related information standards that may be used to represent machine data and machine metadata in REST interfaces. CoRE Link-format is a standard for doing Web Linking {{RFC5988}} in constrained environments. 
+IETF Standards for machine to machine communication in constrained environments describe a REST protocol {{-coap}} and a set of related information standards that may be used to represent machine data and machine metadata in REST interfaces. CoRE Link-format is a standard for doing Web Linking {{-link}} in constrained environments. 
 
 This specification introduces the concept of a Link Binding, which defines a new link relation type to create a dynamic link between resources over which to exchange state updates. Specifically, a Link Binding is a link for binding the state of 2 resources together such that updates to one are sent over the link to the other. CoRE Link Format representations are used to configure, inspect, and maintain Link Bindings. This specification additionally defines a set of conditional Observe Attributes for use with Link Bindings and with the standalone CoRE Observe {{RFC7641}} method.
 
 Terminology     {#terminology}
 ===========
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this specification are to be interpreted as described in {{RFC2119}}.
 
-This specification requires readers to be familiar with all the terms and concepts that are discussed in {{RFC5988}} and {{RFC6690}}.  This specification makes use of the following additional terminology:
+{::boilerplate bcp14}
+
+This specification requires readers to be familiar with all the terms and concepts that are discussed in {{-link}} and {{RFC6690}}.  This specification makes use of the following additional terminology:
 
 Link Binding:
 : A unidirectional logical link between a source resource and a destination resource, over which state information is synchronized.
@@ -323,7 +323,7 @@ Notes: None
 
 Link Relation Type
 -------------------
-This specification registers the new "boundto" link relation type as per {{RFC5988}}.
+This specification registers the new "boundto" link relation type as per {{-link}}.
 
 Relation Name: 
 : boundto
