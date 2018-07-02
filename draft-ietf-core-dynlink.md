@@ -325,6 +325,12 @@ Contributors
 Changelog
 =========
 
+draft-ietf-core-dynlink-06
+* Document restructure and refactoring into three main sections
+* Clarifications on band usage
+* Implementation considerations introduced
+* Additional text on security considerations
+
 draft-ietf-core-dynlink-05
 
 * Addition of a band modifier for gt and lt, adapted from draft-groves-core-obsattr
