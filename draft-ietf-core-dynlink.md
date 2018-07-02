@@ -326,6 +326,7 @@ Changelog
 =========
 
 draft-ietf-core-dynlink-06
+
 * Document restructure and refactoring into three main sections
 * Clarifications on band usage
 * Implementation considerations introduced
