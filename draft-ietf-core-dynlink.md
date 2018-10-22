@@ -2,7 +2,7 @@
 title: "Dynamic Resource Linking for Constrained RESTful Environments"
 abbrev: Dynamic Resource Linking for CoRE
 docname: draft-ietf-core-dynlink-latest
-#date: 2018-04-05
+date: 2018-10-22
 category: info
 
 ipr: trust200902
@@ -219,8 +219,38 @@ On the other hand if the band is specified in which the value of gt is greater t
 
 ## Attribute Interactions
 
-Pmin, pmax, st, gt and lt may be present in the same query. Parameters are not defined at multiple prioritization levels. Instead, the server state machine generates a notification whenever any of the parameter conditions are met, after which it performs a reset on all the requested conditions. State synchronization also occurs only once even if there are multiple conditions being met at the same time.
+Pmin, pmax, st, gt and lt may be present in the same query. Parameters are not defined at multiple prioritization levels. Instead, the server state machine generates a notification whenever any of the parameter conditions are met, after which it performs a reset on all the requested conditions. State synchronization also occurs only once even if there are multiple conditions being met at the same time. The reference code below illustrates how notifications are generated.
 
+~~~~
+bool notifiable( Resource * r ) {
+
+#define BAND r->band
+#define SCALAR_TYPE ( num_type == r->type )
+#define STRING_TYPE ( str_type == r->type )
+#define BOOLEAN_TYPE ( bool_type == r->type )
+#define PMIN_EX ( r->last_sample_time - r->last_rep_time >= r->pmin )
+#define PMAX_EX ( r->last_sample_time - r->last_rep_time > r->pmax )
+#define LT_EX ( r->v < r->lt ^ r->last_rep_v < r->lt )
+#define GT_EX ( r->v > r->gt ^ r->last_rep_v > r->gt )
+#define ST_EX ( abs( r->v - r->last_rep_v ) >= r->st )
+#define IN_BAND ( ( r->gt <= r->v && r->v <= r->lt ) || ( r->lt <= r->gt && r->gt <= r->v ) || ( r->v <= r->lt && r->lt <= r->gt ) )
+#define VB_CHANGE ( r->vb != r->last_rep_vb )
+#define VS_CHANGE ( r->vs != r->last_rep_vs )
+
+  return (
+    PMIN_EX &&
+    ( SCALAR_TYPE ?
+      ( ( !BAND && ( GT_EX || LT_EX || ST_EX || PMAX_EX ) ) ||
+        ( BAND && IN_BAND && ( ST_EX || PMAX_EX) ) )
+    : STRING_TYPE ?
+      ( VS_CHANGE || PMAX_EX )
+    : BOOLEAN_TYPE ?
+      ( VB_CHANGE || PMAX_EX )
+    : false )
+  );
+}
+~~~~
+{: #figattrint title="Code logic for attribute interactions for observe notification"}
 
 Binding Table     {#binding_table}
 =============
@@ -234,7 +264,7 @@ The Methods column defines the REST methods supported by the interface, which ar
 | Binding   | core.bnd | GET, POST, DELETE | link-format     |
 {: #intdesc title="Binding Interface Description"}
 
-The Binding interface is used to manipulate a binding table. A request with a POST method and a content format of application/link-format simply appends new bindings to the table. All links in the payload MUST have a relation type &quot;boundTo&quot;. A GET request simply returns the current state of a binding table whereas a DELETE request empties the table. Individual entries may be deleted from the table by specifying the resource path in a DELETE request.
+The Binding interface is used to manipulate a binding table. A request with a POST method and a content format of application/link-format simply appends new bindings to the table. All links in the payload MUST have a relation type &quot;boundto&quot;. A GET request simply returns the current state of a binding table whereas a DELETE request empties the table. Individual entries may be deleted from the table by specifying the resource path in a DELETE request.
 
 The following example shows requests for adding, retrieving and deleting bindings in a binding table.
 
@@ -307,7 +337,7 @@ Application Data:
 
 Acknowledgements
 ================
-Acknowledgement is given to colleagues from the SENSEI project who were critical in the initial development of the well-known REST interface concept, to members of the IPSO Alliance where further requirements for interface types have been discussed, and to Szymon Sasin, Cedric Chauvenet, Daniel Gavelle and Carsten Bormann who have provided useful discussion and input to the concepts in this specification.
+Acknowledgement is given to colleagues from the SENSEI project who were critical in the initial development of the well-known REST interface concept, to members of the IPSO Alliance where further requirements for interface types have been discussed, and to Szymon Sasin, Cedric Chauvenet, Daniel Gavelle and Carsten Bormann who have provided useful discussion and input to the concepts in this specification. Christian Amsuss supplied a comprehensive review of draft -06.
 
 Contributors
 ============
@@ -322,6 +352,10 @@ Contributors
 
 Changelog
 =========
+
+draft-ietf-core-dynlink-07
+
+* Added reference code to illustrate attribute interactions for observations
 
 draft-ietf-core-dynlink-06
 
