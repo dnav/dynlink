@@ -2,7 +2,7 @@
 title: "Dynamic Resource Linking for Constrained RESTful Environments"
 abbrev: Dynamic Resource Linking for CoRE
 docname: draft-ietf-core-dynlink-latest
-date: 2017-02-24
+date: 2018-10-22
 category: info
 
 ipr: trust200902
@@ -17,21 +17,12 @@ author:
 - ins: Z. Shelby
   name: Zach Shelby
   organization: ARM
-  street: 150 Rose Orchard
-  city: San Jose
-  code: 95134
+  street: Kidekuja 2
+  city: Vuokatti
+  code: 88600
   country: FINLAND
-  phone: "+1-408-203-9434"
+  phone: "+358407796297"
   email: zach.shelby@arm.com
-- ins: Z.V. Vial
-  name: Matthieu Vial
-  organization: Schneider-Electric
-  street: '' 
-  city: Grenoble
-  code: ''
-  country: FRANCE
-  phone: "+33 (0)47657 6522"
-  email: matthieu.vial@schneider-electric.com
 - ins: M. Koster
   name: Michael Koster
   organization: SmartThings
@@ -42,46 +33,63 @@ author:
   email: michael.koster@smartthings.com
 - ins: C. Groves
   name: Christian Groves
-  organization: Huawei
+  organization: ''
   street: '' 
   city: ''
   code: ''
   country: Australia
   email: cngroves.std@gmail.com
+- ins: J. Zhu
+  name: Jintao Zhu
+  org: Huawei
+  street: No.127 Jinye Road, Huawei Base, High-Tech Development District
+  city: Xi’an, Shaanxi Province
+  code: ''
+  country: China
+  email: jintao.zhu@huawei.com 
+- role: editor
+  ins: B. Silverajan
+  name: Bilhanan Silverajan
+  org: Tampere University of Technology
+  street: Korkeakoulunkatu 10
+  city: Tampere
+  code: 'FI-33720'
+  country: Finland
+  email: bilhanan.silverajan@tut.fi
 
 normative:
-  RFC2119:
-  RFC5988:
-  RFC6690:
+  RFC8288: link
+  RFC6690: link-format
 
-  
+
 informative:
-  RFC7252:
-  RFC7641:
-  
+  RFC7252: coap
+  RFC7641: observe
+
 
 --- abstract
 
- For CoAP {{RFC7252}} Dynamic linking of state updates between resources, either on an endpoint or between endpoints, is defined with the concept of Link Bindings. This specification defines conditional observation attributes that work with Link Bindings or with CoAP Observe {{RFC7641}}.
+ For CoAP (RFC7252), Dynamic linking of state updates between resources, either on an endpoint or between endpoints, is defined with the concept of Link Bindings. This specification defines conditional observation attributes that work with Link Bindings or with CoAP Observe (RFC7641).
  
- Editor's note:
+--- note_Editor_note
  
- o The git repository for the draft is found at https://github.com/core-wg/dynlink
+The git repository for the draft is found at https://github.com/core-wg/dynlink
 
 --- middle
 
 Introduction        {#introduction}
 ============
 
-IETF Standards for machine to machine communication in constrained environments describe a REST protocol and a set of related information standards that may be used to represent machine data and machine metadata in REST interfaces. CoRE Link-format is a standard for doing Web Linking {{RFC5988}} in constrained environments. 
+IETF Standards for machine to machine communication in constrained environments describe a REST protocol {{-coap}} and a set of related information standards that may be used to represent machine data and machine metadata in REST interfaces. CoRE Link-format {{-link-format}} is a standard for doing Web Linking {{-link}} in constrained environments. 
 
-This specification introduces the concept of a Link Binding, which defines a new link relation type to create a dynamic link between resources over which to exchange state updates. Specifically, a Link Binding is a link for binding the state of 2 resources together such that updates to one are sent over the link to the other. CoRE Link Format representations are used to configure, inspect, and maintain Link Bindings. This specification additionally defines a set of conditional Observe Attributes for use with Link Bindings and with the standalone CoRE Observe {{RFC7641}} method.
+This specification introduces the concept of a Link Binding, which defines a new link relation type to create a dynamic link between resources over which state updates are conveyed. Specifically, a Link Binding is a unidirectional link for binding the states of source and destination resources together such that updates to one are sent over the link to the other. CoRE Link Format representations are used to configure, inspect, and maintain Link Bindings. This specification additionally defines a set of conditional Observe Attributes for use with Link Bindings and with the standalone CoRE Observe {{RFC7641}} method.
 
 Terminology     {#terminology}
 ===========
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this specification are to be interpreted as described in {{RFC2119}}.
 
-This specification requires readers to be familiar with all the terms and concepts that are discussed in {{RFC5988}} and {{RFC6690}}.  This specification makes use of the following additional terminology:
+{::boilerplate bcp14}
+
+This specification requires readers to be familiar with all the terms and concepts that are discussed in {{-link}} and {{RFC6690}}.  This specification makes use of the following additional terminology:
 
 Link Binding:
 : A unidirectional logical link between a source resource and a destination resource, over which state information is synchronized.
@@ -89,14 +97,23 @@ Link Binding:
 State Synchronization:
 : Depending on the binding method (Polling, Observe, Push) different REST methods may be used to synchronize the resource values between a source and a destination. The process of using a REST method to achieve this is defined as "State Synchronization". The endpoint triggering the state synchronization is the synchronization initiator.
 
+Notification Band:  
+: A resource value range that results in state sychronization.  The value range may be bounded by a minimum and maximum value or may be unbounded having either a minimum or maximum value.
+
 Link Bindings        {#bindings}
 =============
-In a M2M RESTful environment, endpoints may directly exchange the content of their resources to operate the distributed system. For example, a light switch may supply on-off control information that may be sent directly to a light resource for on-off control. Beforehand, a configuration phase is necessary to determine how the resources of the different endpoints are related to each other. This can be done either automatically using discovery mechanisms or by means of human intervention and a so-called commissioning tool. In this specification the abstract relationship between two resources is called a link Binding. The configuration phase necessitates the exchange of binding information so a format recognized by all CoRE endpoints is essential. This specification defines a format based on the CoRE Link-Format to represent binding information along with the rules to define a binding method which is a specialized relationship between two resources. The purpose of a binding is to synchronize the content between a source resource and a destination resource. The destination resource MAY be a group resource if the authority component of the destination URI contains a group address (either a multicast address or a name that resolves to a multicast address). Since a binding is unidirectional, the binding entry defining a relationship is present only on one endpoint. The binding entry may be located either on the source or the destination endpoint depending on the binding method. 
+In a M2M RESTful environment, endpoints may directly exchange the content of their resources to operate the distributed system. For example, a light switch may supply on-off control information that may be sent directly to a light resource for on-off control. Beforehand, a configuration phase is necessary to determine how the resources of the different endpoints are related to each other. This can be done either automatically using discovery mechanisms or by means of human intervention and a so-called commissioning tool. In this specification such an abstract relationship between two resources is defined, called a link Binding. The configuration phase necessitates the exchange of binding information so a format recognized by all CoRE endpoints is essential. This specification defines a format based on the CoRE Link-Format to represent binding information along with the rules to define a binding method which is a specialized relationship between two resources. The purpose of such a binding is to synchronize the content between a source resource and a destination resource. The destination resource MAY be a group resource if the authority component of the destination URI contains a group address (either a multicast address or a name that resolves to a multicast address). Since a binding is unidirectional, the binding entry defining a relationship is present only on one endpoint. The binding entry may be located either on the source or the destination endpoint depending on the binding method. 
 
-Binding Methods    {#binding_methods}
+The &quot;bind&quot; attribute and Binding Methods    {#binding_methods}
 ---------------
 
 A binding method defines the rules to generate the web-transfer exchanges that synchronize state between source and destination resources. By using REST methods content is sent from the source resource to the destination resource. 
+
+In order to use binding methods, this specification defines a special CoRE link attribute &quot;bind&quot;. This is the identifier of a binding method which defines the rules to synchronize the destination resource. This attribute is mandatory.
+
+| Attribute         | Parameter | Value            |
+| Binding method    | bind      | xsd:string       |
+{: #bindattribute title="The bind attribute"}
 
 The following table gives a summary of the binding methods defined in this specification.
 
@@ -128,7 +145,7 @@ The Polling method consists of sending periodic GET requests from the destinatio
 
 ###Observe
  
-The Observe method creates an observation relationship between the destination endpoint and the source resource. On each notification the content from the source resource is copied to the destination resource. The creation of the observation relationship requires the CoAP Observation mechanism {{RFC7641}} hence this method is only permitted when the resources are made available over CoAP. The binding entry for this method MUST be stored on the destination endpoint. The binding conditions are mapped as query string parameters (see {{observation}}).
+The Observe method creates an observation relationship between the destination endpoint and the source resource. On each notification the content from the source resource is copied to the destination resource. The creation of the observation relationship requires the CoAP Observation mechanism {{RFC7641}} hence this method is only permitted when the resources are made available over CoAP. The binding entry for this method MUST be stored on the destination endpoint. The binding conditions are mapped as query string parameters (see {{binding_attributes}}).
 
 ###Push 
 
@@ -139,60 +156,105 @@ Link Relation    {#relation_type}
 ------
 Since Binding involves the creation of a link between two resources, Web Linking and the CoRE Link-Format are a natural way to represent binding information. This involves the creation of a new relation type, named "boundto". In a Web link with this relation type, the target URI contains the location of the source resource and the context URI points to the destination resource. 
 
-Binding Attributes     {#binding_attributes}
-----------------
+Binding and Resource Observation Attributes        {#binding_attributes}
+=============
 
-Web link attributes allow a fine-grained control of the type of state synchronization along with the conditions that trigger an update. This specification defines the attributes below:
+In addition to &quot;bind&quot;, this specification further defines Web link attributes allowing a fine-grained control of the type of state synchronization along with the conditions that trigger an update. 
+
+When resource interfaces following this specification are made available over CoAP, the CoAP Observation mechanism {{RFC7641}} MAY also be used to observe any changes in a resource, and receive asynchronous notifications as a result. A resource using an interface description defined in this specification and marked as Observable in its link description SHOULD support these observation parameters.
+
+In addition, the set of parameters are defined here allow a client to control how often a client is interested in receiving notifications and how much a resource value should change for the new representation to be interesting, as query parameters. 
+
+These query parameters MUST be treated as resources that are read using GET and updated using PUT, and MUST NOT be included in the Observe request. Multiple parameters MAY be updated at the same time by including the values in the query string of a PUT. Before being updated, these parameters have no default value.
+
+These attributes are defined below:
 
 | Attribute         | Parameter | Value            |
-| Binding method    | bind      | xsd:string       |
 | Minimum Period (s)| pmin      | xsd:integer (>0) |
 | Maximum Period (s)| pmax      | xsd:integer (>0) |
 | Change Step       | st        | xsd:decimal (>0) |
-| Greater Than      | gth       | xsd:decimal      |
-| Less Than         | lth       | xsd:decimal      |
+| Greater Than      | gt       | xsd:decimal      |
+| Less Than         | lt       | xsd:decimal      |
+| Notification Band | band     | xsd:boolean      |
 {: #weblinkattributes title="Binding Attributes Summary"}
  
-###Bind Method (bind)
 
-This is the identifier of a binding method which defines the rules to synchronize the destination resource. This attribute is mandatory.
-
-###Minimum Period (pmin) {#pmin}
+##Minimum Period (pmin) {#pmin}
 
 When present, the minimum period indicates the minimum time to wait (in seconds) before triggering a new state synchronization (even if it has changed). In the absence of this parameter, the minimum period is up to the synchronization initiator. The minimum period MUST be greater than zero otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
 
-###Maximum Period (pmax) {#pmax}
+##Maximum Period (pmax) {#pmax}
 When present, the maximum period indicates the maximum time in seconds between two consecutive state synchronizations (regardless if it has changed). In the absence of this parameter, the maximum period is up to the synchronization initiator. The maximum period MUST be greater than zero and MUST be greater than the minimum period parameter (if present) otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
 
-###Change Step (st) {#st}
+##Change Step (st) {#st}
 When present, the change step indicates how much the value of a resource SHOULD change before triggering a new state synchronization (compared to the value of the previous synchronization). Upon reception of a query including the st attribute the current value (CurrVal) of the resource is set as the initial value (STinit). Once the resource value differs from the STinit value (i.e. CurrVal >= STinit + ST or CurrVal <= STint - ST) then a new state synchronization occurs. STinit is then set to the state synchronization value and new state synchronizations are based on a change step against this value. The change step MUST be greater than zero otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
+
+The Change Step parameter can only be supported on resources with an atomic numeric value.
 
 Note: Due to the state synchronization based update of STint it may result in that resource value received in two sequential state synchronizations differs by more than st.
 
-###Greater Than (gth) {#gth}
-When present, Greater Than indicates the upper limit value the resource value SHOULD cross before triggering a new state synchronization. State synchronization only occurs when the resource value exceeds the specified upper limit value. The actual resource value is used for the synchronization rather than the gth value. If the value continues to rise, no new state synchronizations are generated as a result of gth. If the value drops below the upper limit value and then exceeds the upper limit then a new state synchronization is generated. 
+##Greater Than (gt) {#gt}
+When present, Greater Than indicates the upper limit value the resource value SHOULD cross before triggering a new state synchronization. State synchronization only occurs when the resource value exceeds the specified upper limit value. The actual resource value is used for the synchronization rather than the gt value. If the value continues to rise, no new state synchronizations are generated as a result of gt. If the value drops below the upper limit value and then exceeds the upper limit then a new state synchronization is generated. 
 
-###Less Than (lth) {#lth}
-When present, Less Than indicates the lower limit value the resource value SHOULD cross before triggering a new state synchronization. State synchronization only occurs when the resource value is less than the specified lower limit value. The actual resource value is used for the synchronization rather than the lth value. If the value continues to fall no new state synchronizations are generated as a result of lth. If the value rises above the lower limit value and then drops below the lower limit then a new state synchronization is generated. 
+##Less Than (lt) {#lt}
+When present, Less Than indicates the lower limit value the resource value SHOULD cross before triggering a new state synchronization. State synchronization only occurs when the resource value is less than the specified lower limit value. The actual resource value is used for the synchronization rather than the lt value. If the value continues to fall no new state synchronizations are generated as a result of lt. If the value rises above the lower limit value and then drops below the lower limit then a new state synchronization is generated. 
 
-### Attribute Interactions
+##Notification Band (band) {#band}
 
-Pmin, pmax, st, gth and lth may be present in the same query. 
+The notification band attribute allows a bounded or unbounded (based on a minimum or maximum) value range that may trigger multiple state synchronizations. This enables use cases where different ranges results in differing behaviour. For example: monitoring the temperature of machinery. Whilst the temperature is in the normal operating range only periodic observations are needed. However as the temperature moves to more abnormal ranges more frequent synchronization/reporting may be needed.
 
-If pmin and pmax are present in a query then they take precedence over the other parameters. Thus even if st, gth or lth are met, if pmin has not been exceeded then no state synchronization occurs. Likewise if st, gth or lth have not been met and pmax time has expired then state synchronization occurs. The current value of the resource is used for the synchronization. If pmin time is exceeded and st, gth or lth are met then the current value of the resource is synchronized. If st is also included, a state synchronization resulting from pmin or pmax updates STinit with the synchronized value.
+Without a notification band, a transition across a less than (lt), or greater than (gt) limit only generates one notification.  This means that it is not possible to describe a case where multiple notifications are sent so long as the limit is exceeded.
 
-If gth and lth are included gth MUST be greater than lth otherwise an error CoAP error code 4.00 "Bad Request" (or equivalent) MUST be returned.
+The band attribute works as a modifier to the behaviour of gt and lt. Therefore, if band is present in a query, gt, lt or both, MUST be included.
 
-If st is included in a query with a gth or lth attribute then state synchronizations occur only when the conditions described by st AND gth or st AND gl are met. 
+When band is present with the lt attribute, it defines the lower bound for the notification band (notification band minimum). State synchronization occurs when the resource value is equal to or above the notification band minimum. If lt is not present there is no minimum value for the band.
 
+When band is present with the gt attribute, it defines the upper bound for the notification band (notification band maximum). State synchronization occurs when the resource value is equal to or below the notification band maximum. If gt is not present there is no maximum value for the band.
+
+If band is present with both the gt and lt attributes, two kinds of signaling bands are specified. 
+
+If a band is specified in which the value of gt is less than that of lt, in-band signaling occurs. State synchronization occurs whenever the resource value is between the notification band minimum and maximum or is equal to the notification band minimum or maximum. 
+
+On the other hand if the band is specified in which the value of gt is greater than that of lt, out-of-band signaling occurs. State synchronization occurs whenever the resource value is outside the notification band minimum and maximum or is equal to the notification band minimum or maximum.
+
+## Attribute Interactions
+
+Pmin, pmax, st, gt and lt may be present in the same query. Parameters are not defined at multiple prioritization levels. Instead, the server state machine generates a notification whenever any of the parameter conditions are met, after which it performs a reset on all the requested conditions. State synchronization also occurs only once even if there are multiple conditions being met at the same time. The reference code below illustrates how notifications are generated.
+
+~~~~
+bool notifiable( Resource * r ) {
+
+#define BAND r->band
+#define SCALAR_TYPE ( num_type == r->type )
+#define STRING_TYPE ( str_type == r->type )
+#define BOOLEAN_TYPE ( bool_type == r->type )
+#define PMIN_EX ( r->last_sample_time - r->last_rep_time >= r->pmin )
+#define PMAX_EX ( r->last_sample_time - r->last_rep_time > r->pmax )
+#define LT_EX ( r->v < r->lt ^ r->last_rep_v < r->lt )
+#define GT_EX ( r->v > r->gt ^ r->last_rep_v > r->gt )
+#define ST_EX ( abs( r->v - r->last_rep_v ) >= r->st )
+#define IN_BAND ( ( r->gt <= r->v && r->v <= r->lt ) || ( r->lt <= r->gt && r->gt <= r->v ) || ( r->v <= r->lt && r->lt <= r->gt ) )
+#define VB_CHANGE ( r->vb != r->last_rep_vb )
+#define VS_CHANGE ( r->vs != r->last_rep_vs )
+
+  return (
+    PMIN_EX &&
+    ( SCALAR_TYPE ?
+      ( ( !BAND && ( GT_EX || LT_EX || ST_EX || PMAX_EX ) ) ||
+        ( BAND && IN_BAND && ( ST_EX || PMAX_EX) ) )
+    : STRING_TYPE ?
+      ( VS_CHANGE || PMAX_EX )
+    : BOOLEAN_TYPE ?
+      ( VB_CHANGE || PMAX_EX )
+    : false )
+  );
+}
+~~~~
+{: #figattrint title="Code logic for attribute interactions for observe notification"}
 
 Binding Table     {#binding_table}
 =============
-The binding table is a special resource that gives access to the bindings on a endpoint. A binding table resource MUST support the Binding interface defined below. A profile SHOULD allow only one resource table per endpoint.
-
-Binding Interface Description    {#interfaces}
-----------------------
-This section defines a REST interface for Binding table resources. The interface supports the link-format type.
+The Binding table is a special resource that gives access to the bindings on a endpoint. This section defines a REST interface for Binding table resources. The Binding table resource MUST support the Binding interface defined below. The interface supports the link-format type.
 
 The if= column defines the Interface Description (if=) attribute value to be used in the CoRE Link Format for a resource conforming to that interface. When this value appears in the if= attribute of a link, the resource MUST support the corresponding REST interface described in this section. The resource MAY support additional functionality, which is out of scope for this specification. Although this interface description is intended to be used with the CoRE Link Format, it is applicable for use in any REST interface definition. 
 
@@ -202,7 +264,7 @@ The Methods column defines the REST methods supported by the interface, which ar
 | Binding   | core.bnd | GET, POST, DELETE | link-format     |
 {: #intdesc title="Binding Interface Description"}
 
-The Binding interface is used to manipulate a binding table. A request with a POST method and a content format of application/link-format simply appends new bindings to the table. All links in the payload MUST have a relation type &quot;boundTo&quot;. A GET request simply returns the current state of a binding table whereas a DELETE request empties the table. Individual entries may be dreeleted from the table by specifying the resource path in a DELETE request.
+The Binding interface is used to manipulate a binding table. A request with a POST method and a content format of application/link-format simply appends new bindings to the table. All links in the payload MUST have a relation type &quot;boundto&quot;. A GET request simply returns the current state of a binding table whereas a DELETE request empties the table. Individual entries may be deleted from the table by specifying the resource path in a DELETE request.
 
 The following example shows requests for adding, retrieving and deleting bindings in a binding table.
 
@@ -225,39 +287,18 @@ Res: 2.04 Changed
 ~~~~
 {: #figbindexp title="Binding Interface Example"}
 
-Resource Observation Attributes      {#observation}
--------------------------------
-When resource interfaces following this specification are made available over CoAP, the CoAP Observation mechanism {{RFC7641}} MAY be used to observe any changes in a resource, and receive asynchronous notifications as a result. In addition, a set of query string parameters are defined here to allow a client to control how often a client is interested in receiving notifications and how much a resource value should change for the new representation to be interesting. These query parameters are described in the following table. A resource using an interface description defined in this specification and marked as Observable in its link description SHOULD support these observation parameters. The Change Step parameter can only be supported on resources with an atomic numeric value.
+Implementation Considerations   {#Implementation}
+=======================
 
-These query parameters MUST be treated as resources that are read using GET and updated using PUT, and MUST NOT be included in the Observe request. Multiple parameters MAY be updated at the same time by including the values in the query string of a PUT. Before being updated, these parameters have no default value.
+When using multiple resource bindings (e.g. multiple Observations of resource) with different bands, consideration should be given to the resolution of the resource value when setting sequential bands. For example: Given BandA (Abmn=10, Bbmx=20) and BandB (Bbmn=21, Bbmx=30). If the resource value returns an integer then notifications for values between and inclusive of 10 and 30 will be triggered. Whereas if the resolution is to one decimal point (0.1) then notifications for values 20.1 to 20.9 will not be triggered.
 
-| Resource       | Parameter        | Data Format      |
-| Minimum Period | /{resource}?pmin | xsd:integer (>0) |
-| Maximum Period | /{resource}?pmax | xsd:integer (>0) |
-| Change Step    | /{resource}?st   | xsd:decimal (>0) |
-| Less Than      | /{resource}?lth  | xsd:decimal      |
-| Greater Than   | /{resource}?gth  | xsd:decimal      |
-{: #resobsattr title="Resource Observation Attribute Summary"}
+The use of the notification band minimum and maximum allow for a synchronization whenever a change in the resource value occurs. Theoretically this could occur in-line with the server internal sample period for the determining the resource value. Implementors SHOULD consider the resolution needed before updating the resource, e.g. updating the resource when a temperature sensor value changes by 0.001 degree versus 1 degree.
 
-Minimum Period: 
-: As per {{pmin}}
-
-Maximum Period: 
-: As per {{pmax}}
-
-Change Step: 
-: As per {{st}}
-
-Greater Than: 
-: As per {{gth}}
-
-Less Than: 
-: As per {{lth}}
+The initiation of a link binding can be delegated from a client to a link state machine implementation, which can be an embedded client or a configuration tool. Implementation considerations have to be given to how to monitor transactions made by the configuration tool with regards to link bindings, as well as any errors that may arise with establishing link bindings as well as with established link bindings.
  
 Security Considerations   {#Security}
 =======================
-An implementation of a client needs to be prepared to deal with responses to a request that differ from what is specified in this specification. A server implementing what the client thinks is a resource with one of these interface descriptions could return malformed representations and response codes either by accident or maliciously. A server sending maliciously malformed responses could attempt to take advantage of a poorly implemented client for example to crash the node or perform denial of service. 
-
+Consideration has to be given to what kinds of security credentials the state machine of a configuration tool or an embedded client needs to be configured with, and what kinds of access control lists client implementations should possess, so that transactions on creating link bindings and handling error conditions can be processed by the state machine.
 
 IANA Considerations
 ===================
@@ -267,7 +308,7 @@ Interface Description
 The specification registers the "binding" CoRE interface description link target attribute value as per {{RFC6690}}.
 
 Attribute Value:
-: core.binding
+: core.bnd
 
 Description: The binding interface is used to manipulate a binding table which describes the link bindings between source and destination resources for the purposes of synchronizing their content.
 
@@ -277,7 +318,7 @@ Notes: None
 
 Link Relation Type
 -------------------
-This specification registers the new "bounto" link relation type as per {{RFC5988}}.
+This specification registers the new "boundto" link relation type as per {{-link}}.
 
 Relation Name: 
 : boundto
@@ -296,10 +337,43 @@ Application Data:
 
 Acknowledgements
 ================
-Acknowledgement is given to colleagues from the SENSEI project who were critical in the initial development of the well-known REST interface concept, to members of the IPSO Alliance where further requirements for interface types have been discussed, and to Szymon Sasin, Cedric Chauvenet, Daniel Gavelle and Carsten Bormann who have provided useful discussion and input to the concepts in this specification.
+Acknowledgement is given to colleagues from the SENSEI project who were critical in the initial development of the well-known REST interface concept, to members of the IPSO Alliance where further requirements for interface types have been discussed, and to Szymon Sasin, Cedric Chauvenet, Daniel Gavelle and Carsten Bormann who have provided useful discussion and input to the concepts in this specification. Christian Amsuss supplied a comprehensive review of draft -06.
+
+Contributors
+============
+
+    Matthieu Vial
+    Schneider-Electric
+    Grenoble
+    France
+
+    Phone: +33 (0)47657 6522
+    EMail: matthieu.vial@schneider-electric.com
 
 Changelog
 =========
+
+draft-ietf-core-dynlink-07
+
+* Added reference code to illustrate attribute interactions for observations
+
+draft-ietf-core-dynlink-06
+
+* Document restructure and refactoring into three main sections
+* Clarifications on band usage
+* Implementation considerations introduced
+* Additional text on security considerations
+
+draft-ietf-core-dynlink-05
+
+* Addition of a band modifier for gt and lt, adapted from draft-groves-core-obsattr
+* Removed statement prescribing gt MUST be greater than lt
+
+draft-ietf-core-dynlink-03
+
+* General: Reverted to using "gt" and "lt" from "gth" and "lth" for this draft owing to concerns raised that the attributes are already used in LwM2M with the original names "gt" and "lt".
+
+* New author and editor added. 
 
 draft-ietf-core-dynlink-02
 
@@ -344,7 +418,7 @@ This appendix provides some examples of the use of binding attribute / observe a
 
 Note: For brevity the only the method or response code is shown in the header field.
 
-Greater Than (gth) example
+Greater Than (gt) example
 --------------------------
 
 ~~~~
@@ -356,7 +430,7 @@ Greater Than (gth) example
  3                 +----->|                  Header: GET 
  4                 | GET  |                   Token: 0x4a
  5                 |      |                Uri-Path: temperature
- 6                 |      |               Uri-Query: gth="25"
+ 6                 |      |               Uri-Query: gt="25"
  7                 |      |                 Observe: 0 (register)
  8                 |      |
  9   ____________  |<-----+                  Header: 2.05 
@@ -375,7 +449,7 @@ Greater Than (gth) example
 ~~~~
 {: #figbindexp1 title="Client Registers and Receives one Notification of the Current State and One of a New State when it passes through the greather than threshold of 25."}
 
-Greater Than (gth) and Period Max (pmax) example
+Greater Than (gt) and Period Max (pmax) example
 ----------------------------------
 
 ~~~~
@@ -387,7 +461,7 @@ Greater Than (gth) and Period Max (pmax) example
  3                 +----->|                  Header: GET 
  4                 | GET  |                   Token: 0x4a
  5                 |      |                Uri-Path: temperature
- 6                 |      |         Uri-Query: pmax="20";gth="25"
+ 6                 |      |         Uri-Query: pmax="20";gt="25"
  7                 |      |                 Observe: 0 (register)
  8                 |      |
  9   ____________  |<-----+                  Header: 2.05 
