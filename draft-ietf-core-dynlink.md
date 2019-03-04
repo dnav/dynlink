@@ -103,6 +103,8 @@ Notification Band:
 Conditional Notification Attributes        {#binding_attributes}
 =============
 
+## Attribute Definitions
+
 This specification defines Conditional Notification Attributes, which provide for fine-grained control of notification and state synchronization when using CoRE Observe {{RFC7641}} or Link Bindings. Conditional Notification Attributes define the conditions that trigger a notification. 
 
 When resource interfaces following this specification are made available over CoAP, the CoAP Observation mechanism {{RFC7641}} MAY also be used to observe any changes in a resource, and receive asynchronous notifications as a result. A resource marked as Observable in its link description SHOULD support these Conditional Notification Attributes.
@@ -126,7 +128,7 @@ Conditional Notification Attributes SHOULD be evaluated on all potential notific
 
 Note: In this draft, we assume that there are finite quantization effects in the internal or external updates to the value of a resource; specifically, that a resource may be updated at any time with any valid value. We therefore avoid any continuous-time assumptions in the description of the Conditional Observe Attributes and instead use the phrase "sampled value" to refer to a member of a sequence of values that may be internally observed from the resource state over time.
  
-##Minimum Period (pmin) {#pmin}
+###Minimum Period (pmin) {#pmin}
 
 When present, the minimum period indicates the minimum time, in seconds, between two consecutive notifications (whether or not the resource value has changed). In the absence of this parameter, the minimum period is up to the server. The minimum period MUST be greater than zero otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
 
@@ -134,27 +136,27 @@ A server MAY report the last sampled value that occured during the pmin interval
 
 Note: Due to finite quantization effects, the time between notifications may be greater than pmin even when the sampled value changes within the pmin interval. Pmin may or may not be used to drive the internal sampling process.
 
-##Maximum Period (pmax) {#pmax}
+###Maximum Period (pmax) {#pmax}
 When present, the maximum period indicates the maximum time, in seconds, between two consecutive notifications (whether or not the resource value has changed). In the absence of this parameter, the maximum period is up to the server. The maximum period MUST be greater than zero and MUST be greater than the minimum period parameter (if present) otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
 
-##Change Step (st) {#st}
+###Change Step (st) {#st}
 When present, the change step indicates how much the value of a resource SHOULD change before triggering a notification, compared to the value of the previous notification. Upon reception of a query including the st attribute, the most recently sampled value of the resource is reported, and then set as the last reported value (last_rep_v). When a subsequent sample or update of the resource value differs from the last reported value by an amount, positive or negative, greater than or equal to st, and the time for pmin has elapsed since the last notification, a notification is sent and the last reported value is updated to the value sent in the notification. The change step MUST be greater than zero otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
 
 The Change Step parameter can only be supported on resources with a scalar numeric value. 
 
 Note: Due to sampling and other constraints, e.g. pmin, the resource value received in two sequential notifications may differ by more than st.
 
-##Greater Than (gt) {#gt}
+###Greater Than (gt) {#gt}
 When present, Greater Than indicates the upper limit value the sampled value SHOULD cross before triggering a notification. A notification is sent whenever the sampled value crosses the specified upper limit value, relative to the last reported value, and the time fpr pmin has elapsed since the last notification. The sampled value is sent in the notification. If the value continues to rise, no notifications are generated as a result of gt. If the value drops below the upper limit value then a notification is sent, subject again to the pmin time. 
 
 The Greater Than parameter can only be supported on resources with a scalar numeric value. 
 
-##Less Than (lt) {#lt}
+###Less Than (lt) {#lt}
 When present, Less Than indicates the lower limit value the resource value SHOULD cross before triggering a notification. A notification is sent when the samples value crosses the specified lower limit value, relative to the last reported value, and the time fpr pmin has elapsed since the last notification. The sampled value is sent in the notification. If the value continues to fall no notifications are generated as a result of lt. If the value rises above the lower limit value then a new notification is sent, subject to the pmin time.. 
 
 The Less Than parameter can only be supported on resources with a scalar numeric value. 
 
-##Notification Band (band) {#band}
+###Notification Band (band) {#band}
 
 The notification band attribute allows a bounded or unbounded (based on a minimum or maximum) value range that may trigger multiple notifications. This enables use cases where different ranges results in differing behaviour. For example: monitoring the temperature of machinery. Whilst the temperature is in the normal operating range only periodic observations are needed. However as the temperature moves to more abnormal ranges more frequent synchronization/reporting may be needed.
 
