@@ -105,7 +105,7 @@ Conditional Notification Attributes        {#binding_attributes}
 
 ## Attribute Definitions
 
-This specification defines Conditional Notification Attributes, which provide for fine-grained control of notification and state synchronization when using CoRE Observe {{RFC7641}} or Link Bindings. Conditional Notification Attributes define the conditions that trigger a notification. 
+This specification defines Conditional Notification Attributes, which provide for fine-grained control of notification and state synchronization when using CoRE Observe {{RFC7641}} or Link Bindings (see {{bindings}}). Conditional Notification Attributes define the conditions that trigger a notification. 
 
 When resource interfaces following this specification are made available over CoAP, the CoAP Observation mechanism {{RFC7641}} MAY also be used to observe any changes in a resource, and receive asynchronous notifications as a result. A resource marked as Observable in its link description SHOULD support these Conditional Notification Attributes.
 
@@ -124,9 +124,9 @@ These attributes are defined below:
 | Notification Band | band     | xsd:boolean      |
 {: #weblinkattributes title="Conditional Notification Attributes"}
 
-Conditional Notification Attributes SHOULD be evaluated on all potential notifications from a resource, whether resulting from an internal sampling process or from external update requests to the server.
+Conditional Notification Attributes SHOULD be evaluated on all potential notifications from a resource, whether resulting from an internal server-driven sampling process or from external update requests to the server.
 
-Note: In this draft, we assume that there are finite quantization effects in the internal or external updates to the value of a resource; specifically, that a resource may be updated at any time with any valid value. We therefore avoid any continuous-time assumptions in the description of the Conditional Observe Attributes and instead use the phrase "sampled value" to refer to a member of a sequence of values that may be internally observed from the resource state over time.
+Note: In this draft, we assume that there are finite quantization effects in the internal or external updates to the value of a resource; specifically, that a resource may be updated at any time with any valid value. We therefore avoid any continuous-time assumptions in the description of the Conditional Notification Attributes and instead use the phrase "sampled value" to refer to a member of a sequence of values that may be internally observed from the resource state over time.
  
 ###Minimum Period (pmin) {#pmin}
 
@@ -176,9 +176,9 @@ If the band is specified in which the value of gt is greater than that of lt, ou
 
 The Notification Band parameter can only be supported on resources with a scalar numeric value. 
 
-## Server processing of Conditional Notification Atributes
+## Server processing of Conditional Notification Attributes
 
-Pmin, pmax, st, gt and lt may be present in the same query. The server sends a notification whenever any of the parameter conditions are met, upon which it updates it's last notification value and time to prepare for the next notification. Only one notification occurs when there are multiple conditions being met at the same time. The reference code below illustrates the logic to determine when a notification is to be sent.
+Pmin, pmax, st, gt, lt and band may be present in the same query. Howver, they are not defined at multiple prioritization levels. The server sends a notification whenever any of the parameter conditions are met, upon which it updates its last notification value and time to prepare for the next notification. Only one notification occurs when there are multiple conditions being met at the same time. The reference code below illustrates the logic to determine when a notification is to be sent.
 
 ~~~~
 bool notifiable( Resource * r ) {
@@ -209,14 +209,14 @@ bool notifiable( Resource * r ) {
   );
 }
 ~~~~
-{: #figattrint title="Code logic for attribute interactions for observe notification"}
+{: #figattrint title="Code logic for conditional notification attribute interactions"}
 
 
 Link Bindings        {#bindings}
 =============
 In a M2M RESTful environment, endpoints may directly exchange the content of their resources to operate the distributed system. For example, a light switch may supply on-off control information that may be sent directly to a light resource for on-off control. Beforehand, a configuration phase is necessary to determine how the resources of the different endpoints are related to each other. This can be done either automatically using discovery mechanisms or by means of human intervention and a so-called commissioning tool. 
 
-In this specification such an abstract relationship between two resources is defined, called a link Binding. The configuration phase necessitates the exchange of binding information, so a format recognized by all CoRE endpoints is essential. This specification defines a format based on the CoRE Link-Format to represent binding information along with the rules to define a binding method which is a specialized relationship between two resources. 
+In this specification such an abstract relationship between two resources is defined, called a Link Binding. The configuration phase necessitates the exchange of binding information, so a format recognized by all CoRE endpoints is essential. This specification defines a format based on the CoRE Link-Format to represent binding information along with the rules to define a binding method which is a specialized relationship between two resources. 
 
 The purpose of such a binding is to synchronize content updates between a source resource and a destination resource. The destination resource MAY be a group resource if the authority component of the destination URI contains a group address (either a multicast address or a name that resolves to a multicast address). Since a binding is unidirectional, the binding entry defining a relationship is present only on one endpoint. The binding entry may be located either on the source or the destination endpoint depending on the binding method. 
 
@@ -317,11 +317,11 @@ When using multiple resource bindings (e.g. multiple Observations of resource) w
 
 The use of the notification band minimum and maximum allow for a synchronization whenever a change in the resource value occurs. Theoretically this could occur in-line with the server internal sample period for the determining the resource value. Implementors SHOULD consider the resolution needed before updating the resource, e.g. updating the resource when a temperature sensor value changes by 0.001 degree versus 1 degree.
 
-The initiation of a link binding can be delegated from a client to a link state machine implementation, which can be an embedded client or a configuration tool. Implementation considerations have to be given to how to monitor transactions made by the configuration tool with regards to link bindings, as well as any errors that may arise with establishing link bindings as well as with established link bindings.
+The initiation of a Link Binding can be delegated from a client to a link state machine implementation, which can be an embedded client or a configuration tool. Implementation considerations have to be given to how to monitor transactions made by the configuration tool with regards to Link Bindings, as well as any errors that may arise with establishing Link Bindings in addition to established Link Bindings.
  
 Security Considerations   {#Security}
 =======================
-Consideration has to be given to what kinds of security credentials the state machine of a configuration tool or an embedded client needs to be configured with, and what kinds of access control lists client implementations should possess, so that transactions on creating link bindings and handling error conditions can be processed by the state machine.
+Consideration has to be given to what kinds of security credentials the state machine of a configuration tool or an embedded client needs to be configured with, and what kinds of access control lists client implementations should possess, so that transactions on creating Link Bindings and handling error conditions can be processed by the state machine.
 
 IANA Considerations
 ===================
