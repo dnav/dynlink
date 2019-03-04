@@ -2,7 +2,7 @@
 title: "Dynamic Resource Linking for Constrained RESTful Environments"
 abbrev: Dynamic Resource Linking for CoRE
 docname: draft-ietf-core-dynlink-latest
-date: 2019-3-2
+date: 2019-3-4
 category: info
 
 ipr: trust200902
@@ -50,12 +50,12 @@ author:
 - role: editor
   ins: B. Silverajan
   name: Bilhanan Silverajan
-  org: Tampere University of Technology
-  street: Korkeakoulunkatu 10
+  org: Tampere University
+  street: Kalevantie 4
   city: Tampere
-  code: 'FI-33720'
+  code: 'FI-33100'
   country: Finland
-  email: bilhanan.silverajan@tut.fi
+  email: bilhanan.silverajan@tuni.fi
 
 normative:
   RFC8288: link
