@@ -2,7 +2,7 @@
 title: "Dynamic Resource Linking for Constrained RESTful Environments"
 abbrev: Dynamic Resource Linking for CoRE
 docname: draft-ietf-core-dynlink-latest
-date: 2018-10-22
+date: 2019-3-2
 category: info
 
 ipr: trust200902
@@ -69,7 +69,7 @@ informative:
 
 --- abstract
 
- For CoAP (RFC7252), Dynamic linking of state updates between resources, either on an endpoint or between endpoints, is defined with the concept of Link Bindings. This specification defines conditional observation attributes that work with Link Bindings or with CoAP Observe (RFC7641).
+This specification defines Link Bindings, which provide dynamic linking of state updates between resources, either on an endpoint or between endpoints, for systems using CoAP (RFC7252). This specification also defines Conditional Notification Attributes that work with Link Bindings or with CoAP Observe (RFC7641).
  
 --- note_Editor_note
  
@@ -82,7 +82,7 @@ Introduction        {#introduction}
 
 IETF Standards for machine to machine communication in constrained environments describe a REST protocol {{-coap}} and a set of related information standards that may be used to represent machine data and machine metadata in REST interfaces. CoRE Link-format {{-link-format}} is a standard for doing Web Linking {{-link}} in constrained environments. 
 
-This specification introduces the concept of a Link Binding, which defines a new link relation type to create a dynamic link between resources over which state updates are conveyed. Specifically, a Link Binding is a unidirectional link for binding the states of source and destination resources together such that updates to one are sent over the link to the other. CoRE Link Format representations are used to configure, inspect, and maintain Link Bindings. This specification additionally defines a set of conditional Observe Attributes for use with Link Bindings and with the standalone CoRE Observe {{RFC7641}} method.
+This specification introduces the concept of a Link Binding, which defines a new link relation type to create a dynamic link between resources over which state updates are conveyed. Specifically, a Link Binding is a unidirectional link for binding the states of source and destination resources together such that updates to one are sent over the link to the other. CoRE Link Format representations are used to configure, inspect, and maintain Link Bindings. This specification additionally defines Conditional Notification Attributes for use with Link Bindings and with the CoRE Observe {{RFC7641}} method.
 
 Terminology     {#terminology}
 ===========
@@ -100,126 +100,85 @@ State Synchronization:
 Notification Band:  
 : A resource value range that results in state sychronization.  The value range may be bounded by a minimum and maximum value or may be unbounded having either a minimum or maximum value.
 
-Link Bindings        {#bindings}
-=============
-In a M2M RESTful environment, endpoints may directly exchange the content of their resources to operate the distributed system. For example, a light switch may supply on-off control information that may be sent directly to a light resource for on-off control. Beforehand, a configuration phase is necessary to determine how the resources of the different endpoints are related to each other. This can be done either automatically using discovery mechanisms or by means of human intervention and a so-called commissioning tool. In this specification such an abstract relationship between two resources is defined, called a link Binding. The configuration phase necessitates the exchange of binding information so a format recognized by all CoRE endpoints is essential. This specification defines a format based on the CoRE Link-Format to represent binding information along with the rules to define a binding method which is a specialized relationship between two resources. The purpose of such a binding is to synchronize the content between a source resource and a destination resource. The destination resource MAY be a group resource if the authority component of the destination URI contains a group address (either a multicast address or a name that resolves to a multicast address). Since a binding is unidirectional, the binding entry defining a relationship is present only on one endpoint. The binding entry may be located either on the source or the destination endpoint depending on the binding method. 
-
-The &quot;bind&quot; attribute and Binding Methods    {#binding_methods}
----------------
-
-A binding method defines the rules to generate the web-transfer exchanges that synchronize state between source and destination resources. By using REST methods content is sent from the source resource to the destination resource. 
-
-In order to use binding methods, this specification defines a special CoRE link attribute &quot;bind&quot;. This is the identifier of a binding method which defines the rules to synchronize the destination resource. This attribute is mandatory.
-
-| Attribute         | Parameter | Value            |
-| Binding method    | bind      | xsd:string       |
-{: #bindattribute title="The bind attribute"}
-
-The following table gives a summary of the binding methods defined in this specification.
-
- | Name    | Identifier  | Location    | Method        |
- | Polling | poll        | Destination | GET           |
- | Observe | obs         | Destination | GET + Observe |
- | Push    | push        | Source      | PUT           |
-{: #bindsummary title="Binding Method Summary"}
-
-The description of a binding method must define the following aspects:
-
-Identifier: 
-: This is the value of the &quot;bind&quot; attribute used to identify the method.
-
-Location: 
-: This information indicates whether the binding entry is stored on the source or on the destination endpoint.
-
-REST Method: 
-: This is the REST method used in the Request/Response exchanges.
-
-Conditions: 
-: A binding method definition must state how the condition attributes of the abstract binding definition are actually used in this specialized binding.
-
-The binding methods are described in more detail below.
-
-###Polling
-
-The Polling method consists of sending periodic GET requests from the destination endpoint to the source resource and copying the content to the destination resource. The binding entry for this method MUST be stored on the destination endpoint. The destination endpoint MUST ensure that the polling frequency does not exceed the limits defined by the pmin and pmax attributes of the binding entry. The copying process MAY filter out content from the GET requests using value-based conditions (e.g based on the Change Step, Less Than, Greater Than attributes).
-
-###Observe
- 
-The Observe method creates an observation relationship between the destination endpoint and the source resource. On each notification the content from the source resource is copied to the destination resource. The creation of the observation relationship requires the CoAP Observation mechanism {{RFC7641}} hence this method is only permitted when the resources are made available over CoAP. The binding entry for this method MUST be stored on the destination endpoint. The binding conditions are mapped as query string parameters (see {{binding_attributes}}).
-
-###Push 
-
-When the Push method is assigned to a binding, the source endpoint sends PUT requests to the destination resource when the binding condition attributes are satisfied for the source resource. The source endpoint MUST only send a notification request if the binding conditions are met. The binding entry for this method MUST be stored on the source endpoint.
-
-
-Link Relation    {#relation_type}
-------
-Since Binding involves the creation of a link between two resources, Web Linking and the CoRE Link-Format are a natural way to represent binding information. This involves the creation of a new relation type, named "boundto". In a Web link with this relation type, the target URI contains the location of the source resource and the context URI points to the destination resource. 
-
-Binding and Resource Observation Attributes        {#binding_attributes}
+Conditional Notification Attributes        {#binding_attributes}
 =============
 
-In addition to &quot;bind&quot;, this specification further defines Web link attributes allowing a fine-grained control of the type of state synchronization along with the conditions that trigger an update. 
+## Attribute Definitions
 
-When resource interfaces following this specification are made available over CoAP, the CoAP Observation mechanism {{RFC7641}} MAY also be used to observe any changes in a resource, and receive asynchronous notifications as a result. A resource using an interface description defined in this specification and marked as Observable in its link description SHOULD support these observation parameters.
+This specification defines Conditional Notification Attributes, which provide for fine-grained control of notification and state synchronization when using CoRE Observe {{RFC7641}} or Link Bindings. Conditional Notification Attributes define the conditions that trigger a notification. 
 
-In addition, the set of parameters are defined here allow a client to control how often a client is interested in receiving notifications and how much a resource value should change for the new representation to be interesting, as query parameters. 
+When resource interfaces following this specification are made available over CoAP, the CoAP Observation mechanism {{RFC7641}} MAY also be used to observe any changes in a resource, and receive asynchronous notifications as a result. A resource marked as Observable in its link description SHOULD support these Conditional Notification Attributes.
 
-These query parameters MUST be treated as resources that are read using GET and updated using PUT, and MUST NOT be included in the Observe request. Multiple parameters MAY be updated at the same time by including the values in the query string of a PUT. Before being updated, these parameters have no default value.
+The set of parameters defined here allow a client to control how often a client is interested in receiving notifications and how much a resource value should change for the new representation to be interesting. 
+
+One or more Notification Attributes MAY be included as query parameters in an Observe request.
 
 These attributes are defined below:
 
 | Attribute         | Parameter | Value            |
-| Minimum Period (s)| pmin      | xsd:integer (>0) |
-| Maximum Period (s)| pmax      | xsd:integer (>0) |
+| Minimum Period (s)| pmin      | xsd:decimal (>0) |
+| Maximum Period (s)| pmax      | xsd:decimal (>0) |
 | Change Step       | st        | xsd:decimal (>0) |
 | Greater Than      | gt       | xsd:decimal      |
 | Less Than         | lt       | xsd:decimal      |
 | Notification Band | band     | xsd:boolean      |
-{: #weblinkattributes title="Binding Attributes Summary"}
+{: #weblinkattributes title="Conditional Notification Attributes"}
+
+Conditional Notification Attributes SHOULD be evaluated on all potential notifications from a resource, whether resulting from an internal sampling process or from external update requests to the server.
+
+Note: In this draft, we assume that there are finite quantization effects in the internal or external updates to the value of a resource; specifically, that a resource may be updated at any time with any valid value. We therefore avoid any continuous-time assumptions in the description of the Conditional Observe Attributes and instead use the phrase "sampled value" to refer to a member of a sequence of values that may be internally observed from the resource state over time.
  
+###Minimum Period (pmin) {#pmin}
 
-##Minimum Period (pmin) {#pmin}
+When present, the minimum period indicates the minimum time, in seconds, between two consecutive notifications (whether or not the resource value has changed). In the absence of this parameter, the minimum period is up to the server. The minimum period MUST be greater than zero otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
 
-When present, the minimum period indicates the minimum time to wait (in seconds) before triggering a new state synchronization (even if it has changed). In the absence of this parameter, the minimum period is up to the synchronization initiator. The minimum period MUST be greater than zero otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
+A server MAY report the last sampled value that occured during the pmin interval, after the pmin interval expires. 
 
-##Maximum Period (pmax) {#pmax}
-When present, the maximum period indicates the maximum time in seconds between two consecutive state synchronizations (regardless if it has changed). In the absence of this parameter, the maximum period is up to the synchronization initiator. The maximum period MUST be greater than zero and MUST be greater than the minimum period parameter (if present) otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
+Note: Due to finite quantization effects, the time between notifications may be greater than pmin even when the sampled value changes within the pmin interval. Pmin may or may not be used to drive the internal sampling process.
 
-##Change Step (st) {#st}
-When present, the change step indicates how much the value of a resource SHOULD change before triggering a new state synchronization (compared to the value of the previous synchronization). Upon reception of a query including the st attribute the current value (CurrVal) of the resource is set as the initial value (STinit). Once the resource value differs from the STinit value (i.e. CurrVal >= STinit + ST or CurrVal <= STint - ST) then a new state synchronization occurs. STinit is then set to the state synchronization value and new state synchronizations are based on a change step against this value. The change step MUST be greater than zero otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
+###Maximum Period (pmax) {#pmax}
+When present, the maximum period indicates the maximum time, in seconds, between two consecutive notifications (whether or not the resource value has changed). In the absence of this parameter, the maximum period is up to the server. The maximum period MUST be greater than zero and MUST be greater than the minimum period parameter (if present) otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
 
-The Change Step parameter can only be supported on resources with an atomic numeric value.
+###Change Step (st) {#st}
+When present, the change step indicates how much the value of a resource SHOULD change before triggering a notification, compared to the value of the previous notification. Upon reception of a query including the st attribute, the most recently sampled value of the resource is reported, and then set as the last reported value (last_rep_v). When a subsequent sample or update of the resource value differs from the last reported value by an amount, positive or negative, greater than or equal to st, and the time for pmin has elapsed since the last notification, a notification is sent and the last reported value is updated to the value sent in the notification. The change step MUST be greater than zero otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
 
-Note: Due to the state synchronization based update of STint it may result in that resource value received in two sequential state synchronizations differs by more than st.
+The Change Step parameter can only be supported on resources with a scalar numeric value. 
 
-##Greater Than (gt) {#gt}
-When present, Greater Than indicates the upper limit value the resource value SHOULD cross before triggering a new state synchronization. State synchronization only occurs when the resource value exceeds the specified upper limit value. The actual resource value is used for the synchronization rather than the gt value. If the value continues to rise, no new state synchronizations are generated as a result of gt. If the value drops below the upper limit value and then exceeds the upper limit then a new state synchronization is generated. 
+Note: Due to sampling and other constraints, e.g. pmin, the resource value received in two sequential notifications may differ by more than st.
 
-##Less Than (lt) {#lt}
-When present, Less Than indicates the lower limit value the resource value SHOULD cross before triggering a new state synchronization. State synchronization only occurs when the resource value is less than the specified lower limit value. The actual resource value is used for the synchronization rather than the lt value. If the value continues to fall no new state synchronizations are generated as a result of lt. If the value rises above the lower limit value and then drops below the lower limit then a new state synchronization is generated. 
+###Greater Than (gt) {#gt}
+When present, Greater Than indicates the upper limit value the sampled value SHOULD cross before triggering a notification. A notification is sent whenever the sampled value crosses the specified upper limit value, relative to the last reported value, and the time fpr pmin has elapsed since the last notification. The sampled value is sent in the notification. If the value continues to rise, no notifications are generated as a result of gt. If the value drops below the upper limit value then a notification is sent, subject again to the pmin time. 
 
-##Notification Band (band) {#band}
+The Greater Than parameter can only be supported on resources with a scalar numeric value. 
 
-The notification band attribute allows a bounded or unbounded (based on a minimum or maximum) value range that may trigger multiple state synchronizations. This enables use cases where different ranges results in differing behaviour. For example: monitoring the temperature of machinery. Whilst the temperature is in the normal operating range only periodic observations are needed. However as the temperature moves to more abnormal ranges more frequent synchronization/reporting may be needed.
+###Less Than (lt) {#lt}
+When present, Less Than indicates the lower limit value the resource value SHOULD cross before triggering a notification. A notification is sent when the samples value crosses the specified lower limit value, relative to the last reported value, and the time fpr pmin has elapsed since the last notification. The sampled value is sent in the notification. If the value continues to fall no notifications are generated as a result of lt. If the value rises above the lower limit value then a new notification is sent, subject to the pmin time.. 
+
+The Less Than parameter can only be supported on resources with a scalar numeric value. 
+
+###Notification Band (band) {#band}
+
+The notification band attribute allows a bounded or unbounded (based on a minimum or maximum) value range that may trigger multiple notifications. This enables use cases where different ranges results in differing behaviour. For example: monitoring the temperature of machinery. Whilst the temperature is in the normal operating range only periodic observations are needed. However as the temperature moves to more abnormal ranges more frequent synchronization/reporting may be needed.
 
 Without a notification band, a transition across a less than (lt), or greater than (gt) limit only generates one notification.  This means that it is not possible to describe a case where multiple notifications are sent so long as the limit is exceeded.
 
 The band attribute works as a modifier to the behaviour of gt and lt. Therefore, if band is present in a query, gt, lt or both, MUST be included.
 
-When band is present with the lt attribute, it defines the lower bound for the notification band (notification band minimum). State synchronization occurs when the resource value is equal to or above the notification band minimum. If lt is not present there is no minimum value for the band.
+When band is present with the lt attribute, it defines the lower bound for the notification band (notification band minimum). Notifications occur when the resource value is equal to or above the notification band minimum. If lt is not present there is no minimum value for the band.
 
-When band is present with the gt attribute, it defines the upper bound for the notification band (notification band maximum). State synchronization occurs when the resource value is equal to or below the notification band maximum. If gt is not present there is no maximum value for the band.
+When band is present with the gt attribute, it defines the upper bound for the notification band (notification band maximum). Notifications occur when the resource value is equal to or below the notification band maximum. If gt is not present there is no maximum value for the band.
 
-If band is present with both the gt and lt attributes, two kinds of signaling bands are specified. 
+If band is present with both the gt and lt attributes, notification occurs when the resource value is greater than or equal to gt or when the resource value is less than or equal to lt.
 
-If a band is specified in which the value of gt is less than that of lt, in-band signaling occurs. State synchronization occurs whenever the resource value is between the notification band minimum and maximum or is equal to the notification band minimum or maximum. 
+If a band is specified in which the value of gt is less than that of lt, in-band notification occurs. That is, notification occurs whenever the resource value is between the gt and lt values, including equal to gt or lt. 
 
-On the other hand if the band is specified in which the value of gt is greater than that of lt, out-of-band signaling occurs. State synchronization occurs whenever the resource value is outside the notification band minimum and maximum or is equal to the notification band minimum or maximum.
+If the band is specified in which the value of gt is greater than that of lt, out-of-band notification occurs. That is, notification occurs when the resource value not between the gt and lt values, excluding equal to gt and lt.
 
-## Attribute Interactions
+The Notification Band parameter can only be supported on resources with a scalar numeric value. 
 
-Pmin, pmax, st, gt and lt may be present in the same query. Parameters are not defined at multiple prioritization levels. Instead, the server state machine generates a notification whenever any of the parameter conditions are met, after which it performs a reset on all the requested conditions. State synchronization also occurs only once even if there are multiple conditions being met at the same time. The reference code below illustrates how notifications are generated.
+## Server processing of Conditional Notification Atributes
+
+Pmin, pmax, st, gt and lt may be present in the same query. The server sends a notification whenever any of the parameter conditions are met, upon which it updates it's last notification value and time to prepare for the next notification. Only one notification occurs when there are multiple conditions being met at the same time. The reference code below illustrates the logic to determine when a notification is to be sent.
 
 ~~~~
 bool notifiable( Resource * r ) {
@@ -251,6 +210,70 @@ bool notifiable( Resource * r ) {
 }
 ~~~~
 {: #figattrint title="Code logic for attribute interactions for observe notification"}
+
+
+Link Bindings        {#bindings}
+=============
+In a M2M RESTful environment, endpoints may directly exchange the content of their resources to operate the distributed system. For example, a light switch may supply on-off control information that may be sent directly to a light resource for on-off control. Beforehand, a configuration phase is necessary to determine how the resources of the different endpoints are related to each other. This can be done either automatically using discovery mechanisms or by means of human intervention and a so-called commissioning tool. 
+
+In this specification such an abstract relationship between two resources is defined, called a link Binding. The configuration phase necessitates the exchange of binding information, so a format recognized by all CoRE endpoints is essential. This specification defines a format based on the CoRE Link-Format to represent binding information along with the rules to define a binding method which is a specialized relationship between two resources. 
+
+The purpose of such a binding is to synchronize content updates between a source resource and a destination resource. The destination resource MAY be a group resource if the authority component of the destination URI contains a group address (either a multicast address or a name that resolves to a multicast address). Since a binding is unidirectional, the binding entry defining a relationship is present only on one endpoint. The binding entry may be located either on the source or the destination endpoint depending on the binding method. 
+
+Conditional Notification Attributes defined in {{binding_attributes}} can be used with Link Bindings in order to customize the notification behavior and timing.
+
+The &quot;bind&quot; attribute and Binding Methods    {#binding_methods}
+---------------
+
+A binding method defines the rules to generate the network-transfer exchanges that synchronize state between source and destination resources. By using REST methods content is sent from the source resource to the destination resource. 
+
+This specification defines a new CoRE link attribute &quot;bind&quot;. This is the identifier for a binding method which defines the rules to synchronize the destination resource. This attribute is mandatory.
+
+| Attribute         | Parameter | Value            |
+| Binding method    | bind      | xsd:string       |
+{: #bindattribute title="The bind attribute"}
+
+The following table gives a summary of the binding methods defined in this specification.
+
+ | Name    | Identifier  | Location    | Method        |
+ | Polling | poll        | Destination | GET           |
+ | Observe | obs         | Destination | GET + Observe |
+ | Push    | push        | Source      | PUT           |
+{: #bindsummary title="Binding Method Summary"}
+
+The description of a binding method defines the following aspects:
+
+Identifier: 
+: This is the value of the &quot;bind&quot; attribute used to identify the method.
+
+Location: 
+: This information indicates whether the binding entry is stored on the source or on the destination endpoint.
+
+REST Method: 
+: This is the REST method used in the Request/Response exchanges.
+
+Conditional Notification: 
+: How Conditional Notification Attributes are used in the binding.
+
+The binding methods are described in more detail below.
+
+###Polling
+
+The Polling method consists of sending periodic GET requests from the destination endpoint to the source resource and copying the content to the destination resource. The binding entry for this method MUST be stored on the destination endpoint. The destination endpoint MUST ensure that the polling frequency does not exceed the limits defined by the pmin and pmax attributes of the binding entry. The copying process MAY filter out content from the GET requests using value-based conditions (e.g based on the Change Step, Less Than, Greater Than attributes).
+
+###Observe
+ 
+The Observe method creates an observation relationship between the destination endpoint and the source resource. On each notification the content from the source resource is copied to the destination resource. The creation of the observation relationship requires the CoAP Observation mechanism {{RFC7641}} hence this method is only permitted when the resources are made available over CoAP. The binding entry for this method MUST be stored on the destination endpoint. The binding conditions are mapped as query parameters in the Observe request (see {{binding_attributes}}).
+
+###Push 
+
+When the Push method is assigned to a binding, the source endpoint sends PUT requests to the destination resource when the Conditional Notification Attributes are satisfied for the source resource. The source endpoint SHOULD only send a notification request if any included Conditional Notification Attributes are met. The binding entry for this method MUST be stored on the source endpoint.
+
+
+Link Relation    {#relation_type}
+------
+Since Binding involves the creation of a link between two resources, Web Linking and the CoRE Link-Format used to represent binding information. This involves the creation of a new relation type, "boundto". In a Web link with this relation type, the target URI contains the location of the source resource and the context URI points to the destination resource. 
+
 
 Binding Table     {#binding_table}
 =============
@@ -352,6 +375,13 @@ Contributors
 
 Changelog
 =========
+
+draft-ietf-core-dynlink-08
+
+* Reorganize the draft to introduce Conditional Notification Attributes at the beginning
+* Made pmin and pmax type xsd:decimal to accommodate fractional second timing
+* updated the attribute descriptions. lt and gt notify on all crossings, both directions
+
 
 draft-ietf-core-dynlink-07
 
