@@ -277,22 +277,33 @@ Since Binding involves the creation of a link between two resources, Web Linking
 
 Binding Table     {#binding_table}
 =============
-The Binding table is a special resource that gives access to the bindings on a endpoint. This section defines a REST interface for Binding table resources. The Binding table resource MUST support the Binding interface defined below. The interface supports the link-format type.
+The Binding Table is a special resource that describes the bindings on an endpoint. An endpoint offering a representation of the Binding Table resource SHOULD indicate its presence and enable its discovery by advertising a link at "/.well-known/core" {{RFC6690}}. If so, the Binding Table resource MUST be discoverable by using the Resource Type (rt) 'core.bnd'.
 
-The if= column defines the Interface Description (if=) attribute value to be used in the CoRE Link Format for a resource conforming to that interface. When this value appears in the if= attribute of a link, the resource MUST support the corresponding REST interface described in this section. The resource MAY support additional functionality, which is out of scope for this specification. Although this interface description is intended to be used with the CoRE Link Format, it is applicable for use in any REST interface definition. 
+The Methods column defines the REST methods supported by the Binding Table, which are described in more detail below. 
 
-The Methods column defines the REST methods supported by the interface, which are described in more detail below. 
+| Resource      | rt=      | Methods  | Content-Format |
+| Binding Table | core.bnd | GET, PUT | link-format    |
+{: #intdesc title="Binding Table Description"}
 
-| Interface | if=      | Methods           | Content-Formats |
-| Binding   | core.bnd | GET, POST, DELETE | link-format     |
-{: #intdesc title="Binding Interface Description"}
+The REST methods GET and PUT are used to manipulate a Binding Table. A GET request simply returns the current state of a Binding Table. A request with a PUT method and a content format of application/link-format is used to clear the bindings to the table or replaces its entire contents. All links in the payload of a PUT rquest MUST have a relation type &quot;boundto&quot;. 
 
-The Binding interface is used to manipulate a binding table. A request with a POST method and a content format of application/link-format simply appends new bindings to the table. All links in the payload MUST have a relation type &quot;boundto&quot;. A GET request simply returns the current state of a binding table whereas a DELETE request empties the table. Individual entries may be deleted from the table by specifying the resource path in a DELETE request.
+(Editor's Note: Usage of the PATCH method for fine-grained addition and removal of individual bindings is under study.)
 
-The following example shows requests for adding, retrieving and deleting bindings in a binding table.
+The following example shows requests for discovering, retrieving and replacing bindings in a binding table.
 
 ~~~~
-Req: POST /bnd/ (Content-Format: application/link-format)
+Req: GET /.well-known/core?rt=core.bnd (application/link-format)
+Res: 2.05 Content (application/link-format)
+</bnd/>;rt=core.bnd;ct=40
+
+Req: GET /bnd/
+Res: 2.05 Content (application/link-format)
+<coap://sensor.example.com/a/switch1/>;
+	rel=boundto;bind=obs;anchor=/a/fan,;bind="obs",
+<coap://sensor.example.com/a/switch2/>;
+	rel=boundto;bind=obs;anchor=/a/light;bind="obs"
+
+Req: PUT /bnd/ (Content-Format: application/link-format)
 <coap://sensor.example.com/s/light>;
   rel="boundto";anchor="/a/light";bind="obs";pmin="10";pmax="60"
 Res: 2.04 Changed 
@@ -301,14 +312,8 @@ Req: GET /bnd/
 Res: 2.05 Content (application/link-format)
 <coap://sensor.example.com/s/light>;
   rel="boundto";anchor="/a/light";bind="obs";pmin="10";pmax="60"
-
-Req: DELETE /bnd/a/light
-Res: 2.04 Changed  
-  
-Req: DELETE /bnd/
-Res: 2.04 Changed
 ~~~~
-{: #figbindexp title="Binding Interface Example"}
+{: #figbindexp title="Binding Table Example"}
 
 Implementation Considerations   {#Implementation}
 =======================
@@ -326,14 +331,14 @@ Consideration has to be given to what kinds of security credentials the state ma
 IANA Considerations
 ===================
 
-Interface Description
+Resource Type value 'core.bnd'
 ---------------------
-The specification registers the "binding" CoRE interface description link target attribute value as per {{RFC6690}}.
+This specification registers a new Resource Type Link Target Attribute 'core.bnd' in the Resource Type (rt=) registry established as per {{RFC6690}}.
 
 Attribute Value:
 : core.bnd
 
-Description: The binding interface is used to manipulate a binding table which describes the link bindings between source and destination resources for the purposes of synchronizing their content.
+Description: See {{binding_table}}. This attribute value is used to discover the resource representing a binding table, which describes the link bindings between source and destination resources for the purposes of synchronizing their content.
 
 Reference: This specification. Note to RFC editor: please insert the RFC of this specification.
 
