@@ -2,7 +2,7 @@
 title: "Dynamic Resource Linking for Constrained RESTful Environments"
 abbrev: Dynamic Resource Linking for CoRE
 docname: draft-ietf-core-dynlink-latest
-date: 2019-3-4
+date: 2019-3-8
 category: info
 
 ipr: trust200902
@@ -386,6 +386,7 @@ draft-ietf-core-dynlink-08
 * Reorganize the draft to introduce Conditional Notification Attributes at the beginning
 * Made pmin and pmax type xsd:decimal to accommodate fractional second timing
 * updated the attribute descriptions. lt and gt notify on all crossings, both directions
+* updated Binding Table description, removed interface description but introduced core.bnd rt attribute value
 
 
 draft-ietf-core-dynlink-07
