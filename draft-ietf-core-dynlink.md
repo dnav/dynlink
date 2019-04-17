@@ -466,7 +466,7 @@ Greater Than (gt) example
  3                 +----->|                  Header: GET 
  4                 | GET  |                   Token: 0x4a
  5                 |      |                Uri-Path: temperature
- 6                 |      |               Uri-Query: gt="25"
+ 6                 |      |               Uri-Query: gt=25
  7                 |      |                 Observe: 0 (register)
  8                 |      |
  9   ____________  |<-----+                  Header: 2.05 
@@ -497,7 +497,7 @@ Greater Than (gt) and Period Max (pmax) example
  3                 +----->|                  Header: GET 
  4                 | GET  |                   Token: 0x4a
  5                 |      |                Uri-Path: temperature
- 6                 |      |         Uri-Query: pmax=20;gt="25"
+ 6                 |      |         Uri-Query: pmax=20;gt=25
  7                 |      |                 Observe: 0 (register)
  8                 |      |
  9   ____________  |<-----+                  Header: 2.05 
