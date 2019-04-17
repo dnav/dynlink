@@ -305,13 +305,13 @@ Res: 2.05 Content (application/link-format)
 
 Req: PUT /bnd/ (Content-Format: application/link-format)
 <coap://sensor.example.com/s/light>;
-  rel="boundto";anchor="/a/light";bind="obs";pmin="10";pmax="60"
+  rel="boundto";anchor="/a/light";bind="obs";pmin=10;pmax=60
 Res: 2.04 Changed 
 
 Req: GET /bnd/
 Res: 2.05 Content (application/link-format)
 <coap://sensor.example.com/s/light>;
-  rel="boundto";anchor="/a/light";bind="obs";pmin="10";pmax="60"
+  rel="boundto";anchor="/a/light";bind="obs";pmin=10;pmax=60
 ~~~~
 {: #figbindexp title="Binding Table Example"}
 
@@ -497,7 +497,7 @@ Greater Than (gt) and Period Max (pmax) example
  3                 +----->|                  Header: GET 
  4                 | GET  |                   Token: 0x4a
  5                 |      |                Uri-Path: temperature
- 6                 |      |         Uri-Query: pmax="20";gt="25"
+ 6                 |      |         Uri-Query: pmax=20;gt="25"
  7                 |      |                 Observe: 0 (register)
  8                 |      |
  9   ____________  |<-----+                  Header: 2.05 
