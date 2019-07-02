@@ -2,7 +2,7 @@
 title: "Dynamic Resource Linking for Constrained RESTful Environments"
 abbrev: Dynamic Resource Linking for CoRE
 docname: draft-ietf-core-dynlink-latest
-date: 2019-3-8
+date: 2019-7-2
 category: info
 
 ipr: trust200902
@@ -116,12 +116,12 @@ One or more Notification Attributes MAY be included as query parameters in an Ob
 These attributes are defined below:
 
 | Attribute         | Parameter | Value            |
-| Minimum Period (s)| pmin      | xsd:decimal (>0) |
-| Maximum Period (s)| pmax      | xsd:decimal (>0) |
-| Change Step       | st        | xsd:decimal (>0) |
-| Greater Than      | gt       | xsd:decimal      |
-| Less Than         | lt       | xsd:decimal      |
-| Notification Band | band     | xsd:boolean      |
+| Minimum Period (s)| pmin      | xs:decimal (>0) |
+| Maximum Period (s)| pmax      | xs:decimal (>0) |
+| Change Step       | st        | xs:decimal (>0) |
+| Greater Than      | gt       | xs:decimal      |
+| Less Than         | lt       | xs:decimal      |
+| Notification Band | band     | xs:boolean      |
 {: #weblinkattributes title="Conditional Notification Attributes"}
 
 Conditional Notification Attributes SHOULD be evaluated on all potential notifications from a resource, whether resulting from an internal server-driven sampling process or from external update requests to the server.
@@ -230,7 +230,7 @@ A binding method defines the rules to generate the network-transfer exchanges th
 This specification defines a new CoRE link attribute &quot;bind&quot;. This is the identifier for a binding method which defines the rules to synchronize the destination resource. This attribute is mandatory.
 
 | Attribute         | Parameter | Value            |
-| Binding method    | bind      | xsd:string       |
+| Binding method    | bind      | xs:string        |
 {: #bindattribute title="The bind attribute"}
 
 The following table gives a summary of the binding methods defined in this specification.
@@ -384,7 +384,7 @@ Changelog
 draft-ietf-core-dynlink-08
 
 * Reorganize the draft to introduce Conditional Notification Attributes at the beginning
-* Made pmin and pmax type xsd:decimal to accommodate fractional second timing
+* Made pmin and pmax type xs:decimal to accommodate fractional second timing
 * updated the attribute descriptions. lt and gt notify on all crossings, both directions
 * updated Binding Table description, removed interface description but introduced core.bnd rt attribute value
 
@@ -454,6 +454,93 @@ This appendix provides some examples of the use of binding attribute / observe a
 
 Note: For brevity the only the method or response code is shown in the header field.
 
+Minimum Period (pmin) example
+--------------------------
+
+~~~~
+        Observed   CLIENT  SERVER     Actual
+    t   State         |      |         State
+        ____________  |      |  ____________
+    1                 |      |
+    2    unknown      |      |     18.5 Cel
+    3                 +----->|                  Header: GET
+    4                 | GET  |                   Token: 0x4a
+    5                 |      |                Uri-Path: temperature
+    6                 |      |               Uri-Query: pmin="10"
+    7                 |      |                 Observe: 0 (register)
+    8                 |      |
+    9   ____________  |<-----+                  Header: 2.05
+   10                 | 2.05 |                   Token: 0x4a
+   11    18.5 Cel     |      |                 Observe: 9
+   12                 |      |                 Payload: "18.5 Cel"
+   13                 |      |  ____________
+   14                 |      |
+   15                 |      |     23 Cel
+   16                 |      |
+   17                 |      |
+   18                 |      |
+   19                 |      |  ____________
+   20   ____________  |<-----+                  Header: 2.05
+   21                 | 2.05 |     26 Cel        Token: 0x4a
+   22    26 Cel       |      |                 Observe: 20
+   23                 |      |                 Payload: "26 Cel"
+   24                 |      |
+   25                 |      |
+~~~~
+{: #figbindexp1 title="Client registers and receives one notification of the current state and one of a new state state when pmin time expires."}
+
+Maximum Period (pmax) example
+--------------------------
+
+~~~~
+        Observed   CLIENT  SERVER     Actual
+    t   State         |      |         State
+        ____________  |      |  ____________
+    1                 |      |
+    2    unknown      |      |     18.5 Cel
+    3                 +----->|                  Header: GET
+    4                 | GET  |                   Token: 0x4a
+    5                 |      |                Uri-Path: temperature
+    6                 |      |               Uri-Query: pmax="20"
+    7                 |      |                 Observe: 0 (register)
+    8                 |      |
+    9   ____________  |<-----+                  Header: 2.05
+   10                 | 2.05 |                   Token: 0x4a
+   11    18.5 Cel     |      |                 Observe: 9
+   12                 |      |                 Payload: "18.5 Cel"
+   13                 |      |
+   14                 |      |
+   15                 |      |  ____________
+   16   ____________  |<-----+                  Header: 2.05
+   17                 | 2.05 |     23 Cel        Token: 0x4a
+   18    23 Cel       |      |                 Observe: 16
+   19                 |      |                 Payload: "23 Cel"
+   20                 |      |
+   21                 |      |
+   22                 |      |
+   23                 |      |
+   24                 |      |
+   25                 |      |
+   26                 |      |
+   27                 |      |
+   28                 |      |
+   29                 |      |
+   30                 |      |
+   31                 |      |
+   32                 |      |
+   33                 |      |
+   34                 |      |   
+   35                 |      |
+   36                 |      |  ____________
+   37   ____________  |<-----+                  Header: 2.05
+   38                 | 2.05 |     23 Cel        Token: 0x4a
+   39    23 Cel       |      |                 Observe: 37
+   40                 |      |                 Payload: "23 Cel"
+   41                 |      |
+   42                 |      |
+~~~~
+{: #figbindexp2 title="Client registers and receives one notification of the current state, one of a new state and one of an unchanged state when pmax time expires."}
+
 Greater Than (gt) example
 --------------------------
 
@@ -483,7 +570,7 @@ Greater Than (gt) example
 20                 |      |                 
 21                 |      |
 ~~~~
-{: #figbindexp1 title="Client Registers and Receives one Notification of the Current State and One of a New State when it passes through the greather than threshold of 25."}
+{: #figbindexp3 title="Client registers and receives one notification of the current state and one of a new state when it passes through the greater than threshold of 25."}
 
 Greater Than (gt) and Period Max (pmax) example
 ----------------------------------
@@ -535,5 +622,5 @@ Greater Than (gt) and Period Max (pmax) example
 41                 |      |                 
 42                 |      |
 ~~~~
-{: #figbindexp2 title="Client Registers and Receives one Notification of the Current State, one when pmax time expires and one of a new State when it passes through the greather than threshold of 25."}
+{: #figbindexp4 title="Client registers and receives one notification of the current state, one when pmax time expires and one of a new state when it passes through the greater than threshold of 25."}
 
