@@ -65,6 +65,7 @@ normative:
 informative:
   RFC7252: coap
   RFC7641: observe
+  RFC8132: patch
 
 
 --- abstract
@@ -82,7 +83,7 @@ Introduction        {#introduction}
 
 IETF Standards for machine to machine communication in constrained environments describe a REST protocol {{-coap}} and a set of related information standards that may be used to represent machine data and machine metadata in REST interfaces. CoRE Link-format {{-link-format}} is a standard for doing Web Linking {{-link}} in constrained environments. 
 
-This specification introduces the concept of a Link Binding, which defines a new link relation type to create a dynamic link between resources over which state updates are conveyed. Specifically, a Link Binding is a unidirectional link for binding the states of source and destination resources together such that updates to one are sent over the link to the other. CoRE Link Format representations are used to configure, inspect, and maintain Link Bindings. This specification additionally defines Conditional Notification Attributes for use with Link Bindings and with the CoRE Observe {{RFC7641}} method.
+This specification introduces the concept of a Link Binding, which defines a new link relation type to create a dynamic link between resources over which state updates are conveyed. Specifically, a Link Binding is a unidirectional link for binding the states of source and destination resources together such that updates to one are sent over the link to the other. CoRE Link Format representations are used to configure, inspect, and maintain Link Bindings. This specification additionally defines Conditional Notification Attributes for use with Link Bindings and with CoRE Observe {{RFC7641}}.
 
 Terminology     {#terminology}
 ===========
@@ -287,8 +288,6 @@ The Methods column defines the REST methods supported by the Binding Table, whic
 
 The REST methods GET and PUT are used to manipulate a Binding Table. A GET request simply returns the current state of a Binding Table. A request with a PUT method and a content format of application/link-format is used to clear the bindings to the table or replaces its entire contents. All links in the payload of a PUT rquest MUST have a relation type &quot;boundto&quot;. 
 
-(Editor's Note: Usage of the PATCH method for fine-grained addition and removal of individual bindings is under study.)
-
 The following example shows requests for discovering, retrieving and replacing bindings in a binding table.
 
 ~~~~
@@ -299,9 +298,9 @@ Res: 2.05 Content (application/link-format)
 Req: GET /bnd/
 Res: 2.05 Content (application/link-format)
 <coap://sensor.example.com/a/switch1/>;
-	rel=boundto;bind=obs;anchor=/a/fan,;bind="obs",
+	rel=boundto;anchor=/a/fan,;bind="obs",
 <coap://sensor.example.com/a/switch2/>;
-	rel=boundto;bind=obs;anchor=/a/light;bind="obs"
+	rel=boundto;anchor=/a/light;bind="obs"
 
 Req: PUT /bnd/ (Content-Format: application/link-format)
 <coap://sensor.example.com/s/light>;
@@ -314,6 +313,8 @@ Res: 2.05 Content (application/link-format)
   rel="boundto";anchor="/a/light";bind="obs";pmin=10;pmax=60
 ~~~~
 {: #figbindexp title="Binding Table Example"}
+
+Additional operations on the Binding Table can be specified in future documents. Such operations can include, for example, the usage of the iPATCH or PATCH methods {{RFC8132}} for fine-grained addition and removal of individual bindings or binding subsets.
 
 Implementation Considerations   {#Implementation}
 =======================
