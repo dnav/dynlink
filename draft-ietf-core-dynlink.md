@@ -2,7 +2,7 @@
 title: "Dynamic Resource Linking for Constrained RESTful Environments"
 abbrev: Dynamic Resource Linking for CoRE
 docname: draft-ietf-core-dynlink-latest
-date: 2019-7-2
+date: 2019-7-8
 category: info
 
 ipr: trust200902
@@ -366,7 +366,7 @@ Application Data:
 
 Acknowledgements
 ================
-Acknowledgement is given to colleagues from the SENSEI project who were critical in the initial development of the well-known REST interface concept, to members of the IPSO Alliance where further requirements for interface types have been discussed, and to Szymon Sasin, Cedric Chauvenet, Daniel Gavelle and Carsten Bormann who have provided useful discussion and input to the concepts in this specification. Christian Amsuss supplied a comprehensive review of draft -06.
+Acknowledgement is given to colleagues from the SENSEI project who were critical in the initial development of the well-known REST interface concept, to members of the IPSO Alliance where further requirements for interface types have been discussed, and to Szymon Sasin, Cedric Chauvenet, Daniel Gavelle and Carsten Bormann who have provided useful discussion and input to the concepts in this specification. Christian Amsuss supplied a comprehensive review of draft -06. Hannes Tschofenig and Mert Ocak highlighted syntactical corrections in the usage of pmax and pmin in a query.
 
 Contributors
 ============
@@ -381,6 +381,12 @@ Contributors
 
 Changelog
 =========
+
+draft-ietf-core-dynlink-09
+
+* Corrections in Table 1, Table 2, Figure 2. 
+* Clarifications for additional operations to binding table added in section 5
+* Additional examples in Appendix A  
 
 draft-ietf-core-dynlink-08
 
