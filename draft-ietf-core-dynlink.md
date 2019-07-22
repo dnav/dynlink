@@ -2,7 +2,7 @@
 title: "Dynamic Resource Linking for Constrained RESTful Environments"
 abbrev: Dynamic Resource Linking for CoRE
 docname: draft-ietf-core-dynlink-latest
-date: 2019-7-8
+date: 2019-7-22
 category: info
 
 ipr: trust200902
@@ -66,6 +66,7 @@ informative:
   RFC7252: coap
   RFC7641: observe
   RFC8132: patch
+  I-D.irtf-t2trg-rest-iot: server-push
 
 
 --- abstract
@@ -240,6 +241,7 @@ The following table gives a summary of the binding methods defined in this speci
  | Polling | poll        | Destination | GET           |
  | Observe | obs         | Destination | GET + Observe |
  | Push    | push        | Source      | PUT           |
+ | Execute | exec        | Source      | POST          |
 {: #bindsummary title="Binding Method Summary"}
 
 The description of a binding method defines the following aspects:
@@ -268,8 +270,13 @@ The Observe method creates an observation relationship between the destination e
 
 ###Push 
 
-When the Push method is assigned to a binding, the source endpoint sends PUT requests to the destination resource when the Conditional Notification Attributes are satisfied for the source resource. The source endpoint SHOULD only send a notification request if any included Conditional Notification Attributes are met. The binding entry for this method MUST be stored on the source endpoint.
+The Push method can be used to allow a source endpoint to replace an outdated resource state at the destination with a newer representation. When the Push method is assigned to a binding, the source endpoint sends PUT requests to the destination resource when the Conditional Notification Attributes are satisfied for the source resource. The source endpoint SHOULD only send a notification request if any included Conditional Notification Attributes are met. The binding entry for this method MUST be stored on the source endpoint.
 
+###Execute 
+
+An alternative means for a source endpoint to deliver change-of-state notifications to a destination resource is to use the Execute Method. While the Push method simply updates the state of the destination resource with the representation of the source resource, Execute can be used when the destination endpoint wishes to receive all state changes from a source. This allows, for example, the existence of a resource collection consisting of all the state changes at the destination endpoint. When the Execute method is assigned to a binding, the source endpoint sends POST requests to the destination resource when the Conditional Notification Attributes are satisfied for the source resource. The source endpoint SHOULD only send a notification request if any included Conditional Notification Attributes are met. The binding entry for this method MUST be stored on the source endpoint.
+
+Note: Both the Push and the Execute methods are examples of Server Push mechanisms that are being researched in the Thing-to-Thing Research Group (T2TRG) {{I-D.irtf-t2trg-rest-iot}}.
 
 Link Relation    {#relation_type}
 ------
@@ -366,7 +373,7 @@ Application Data:
 
 Acknowledgements
 ================
-Acknowledgement is given to colleagues from the SENSEI project who were critical in the initial development of the well-known REST interface concept, to members of the IPSO Alliance where further requirements for interface types have been discussed, and to Szymon Sasin, Cedric Chauvenet, Daniel Gavelle and Carsten Bormann who have provided useful discussion and input to the concepts in this specification. Christian Amsuss supplied a comprehensive review of draft -06. Hannes Tschofenig and Mert Ocak highlighted syntactical corrections in the usage of pmax and pmin in a query.
+Acknowledgement is given to colleagues from the SENSEI project who were critical in the initial development of the well-known REST interface concept, to members of the IPSO Alliance where further requirements for interface types have been discussed, and to Szymon Sasin, Cedric Chauvenet, Daniel Gavelle and Carsten Bormann who have provided useful discussion and input to the concepts in this specification. Christian Amsuss supplied a comprehensive review of draft -06. Hannes Tschofenig and Mert Ocak highlighted syntactical corrections in the usage of pmax and pmin in a query. Discussions with Ari Keränen led to the addition of an extra binding method supporting POST operations.
 
 Contributors
 ============
@@ -381,6 +388,10 @@ Contributors
 
 Changelog
 =========
+
+draft-ietf-core-dynlink-10
+
+* Binding methods now support both POST and PUT operations for server push.
 
 draft-ietf-core-dynlink-09
 
