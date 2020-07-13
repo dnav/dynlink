@@ -2,7 +2,7 @@
 title: "Dynamic Resource Linking for Constrained RESTful Environments"
 abbrev: Dynamic Resource Linking for CoRE
 docname: draft-ietf-core-dynlink-latest
-date: 2019-7-22
+date: 2020-7-13
 category: info
 
 ipr: trust200902
@@ -14,15 +14,6 @@ stand_alone: yes
 pi: [toc, sortrefs, symrefs]
 
 author:
-- ins: Z. Shelby
-  name: Zach Shelby
-  organization: ARM
-  street: Kidekuja 2
-  city: Vuokatti
-  code: 88600
-  country: FINLAND
-  phone: "+358407796297"
-  email: zach.shelby@arm.com
 - ins: M. Koster
   name: Michael Koster
   organization: SmartThings
@@ -31,22 +22,6 @@ author:
   code: 94043
   country: USA
   email: michael.koster@smartthings.com
-- ins: C. Groves
-  name: Christian Groves
-  organization: ''
-  street: '' 
-  city: ''
-  code: ''
-  country: Australia
-  email: cngroves.std@gmail.com
-- ins: J. Zhu
-  name: Jintao Zhu
-  org: Huawei
-  street: No.127 Jinye Road, Huawei Base, High-Tech Development District
-  city: Xi’an, Shaanxi Province
-  code: ''
-  country: China
-  email: jintao.zhu@huawei.com 
 - role: editor
   ins: B. Silverajan
   name: Bilhanan Silverajan
@@ -378,16 +353,36 @@ Acknowledgement is given to colleagues from the SENSEI project who were critical
 Contributors
 ============
 
+    Christian Groves
+    Australia
+    email: cngroves.std@gmail.com
+
+    Zach Shelby
+    ARM
+    Vuokatti
+    FINLAND
+    phone: +358 40 7796297
+    email: zach.shelby@arm.com
+
     Matthieu Vial
     Schneider-Electric
     Grenoble
     France
+    phone: +33 (0)47657 6522
+    eMail: matthieu.vial@schneider-electric.com
 
-    Phone: +33 (0)47657 6522
-    EMail: matthieu.vial@schneider-electric.com
+    Jintao Zhu
+    Huawei
+    Xi’an, Shaanxi Province
+    China
+    email: jintao.zhu@huawei.com 
 
 Changelog
 =========
+
+draft-ietf-core-dynlink-11
+
+* Updates to author list
 
 draft-ietf-core-dynlink-10
 
