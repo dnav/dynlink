@@ -46,7 +46,7 @@ informative:
 
 --- abstract
 
-This specification defines Link Bindings, which provide dynamic linking of state updates between resources, either on an endpoint or between endpoints, for systems using CoAP (RFC7252). This specification also defines Conditional Notification Attributes that work with Link Bindings or with CoAP Observe (RFC7641).
+This specification defines Link Bindings, which provide dynamic linking of state updates between resources, either on an endpoint or between endpoints, for systems using CoAP (RFC7252). This specification also defines Conditional Notification Attributes and Control Attributes that work with Link Bindings or with CoAP Observe (RFC7641).
  
 --- note_Editor_note
  
@@ -59,7 +59,7 @@ Introduction        {#introduction}
 
 IETF Standards for machine to machine communication in constrained environments describe a REST protocol {{-coap}} and a set of related information standards that may be used to represent machine data and machine metadata in REST interfaces. CoRE Link-format {{-link-format}} is a standard for doing Web Linking {{-link}} in constrained environments. 
 
-This specification introduces the concept of a Link Binding, which defines a new link relation type to create a dynamic link between resources over which state updates are conveyed. Specifically, a Link Binding is a unidirectional link for binding the states of source and destination resources together such that updates to one are sent over the link to the other. CoRE Link Format representations are used to configure, inspect, and maintain Link Bindings. This specification additionally defines Conditional Notification Attributes for use with Link Bindings and with CoRE Observe {{RFC7641}}.
+This specification introduces the concept of a Link Binding, which defines a new link relation type to create a dynamic link between resources over which state updates are conveyed. Specifically, a Link Binding is a unidirectional link for binding the states of source and destination resources together such that updates to one are sent over the link to the other. CoRE Link Format representations are used to configure, inspect, and maintain Link Bindings. This specification additionally defines Conditional Notification Attributes and Control Attributes for use with Link Bindings and with CoRE Observe {{RFC7641}}.
 
 Terminology     {#terminology}
 ===========
@@ -77,18 +77,18 @@ State Synchronization:
 Notification Band:  
 : A resource value range that results in state sychronization.  The value range may be bounded by a minimum and maximum value or may be unbounded having either a minimum or maximum value.
 
-Conditional Notification Attributes        {#binding_attributes}
+Conditional Notification and Control Attributes        {#binding_attributes}
 =============
 
 ## Attribute Definitions
 
-This specification defines Conditional Notification Attributes, which provide for fine-grained control of notification and state synchronization when using CoRE Observe {{RFC7641}} or Link Bindings (see {{bindings}}). Conditional Notification Attributes define the conditions that trigger a notification. 
+This specification defines Conditional Notification and Control Attributes, which provide for fine-grained control of notification and state synchronization when using CoRE Observe {{RFC7641}} or Link Bindings (see {{bindings}}). Conditional Notification Attributes define the conditions that trigger a notification. Conditional Control Attributes define the measurements of the conditions that trigger a notification. 
 
-When resource interfaces following this specification are made available over CoAP, the CoAP Observation mechanism {{RFC7641}} MAY also be used to observe any changes in a resource, and receive asynchronous notifications as a result. A resource marked as Observable in its link description SHOULD support these Conditional Notification Attributes.
+When resource interfaces following this specification are made available over CoAP, the CoAP Observation mechanism {{RFC7641}} MAY also be used to observe any changes in a resource, and receive asynchronous notifications as a result. A resource marked as Observable in its link description SHOULD support these Conditional Notification and Control Attributes.
 
-The set of parameters defined here allow a client to control how often a client is interested in receiving notifications and how much a resource value should change for the new representation to be interesting. 
+The set of Notification Attributes defined here allow a client to control how often a client is interested in receiving notifications and how much a resource value should change for the new representation to be interesting. The set of Control Attributes defined here allow a client to control how often the server performs a measurement of the conditions.
 
-One or more Notification Attributes MAY be included as query parameters in an Observe request.
+One or more Notification and Control Attributes MAY be included as query parameters in an Observe request.
 
 These attributes are defined below:
 
@@ -99,9 +99,11 @@ These attributes are defined below:
 | Greater Than      | gt       | xs:decimal      |
 | Less Than         | lt       | xs:decimal      |
 | Notification Band | band     | xs:boolean      |
+| Minimum Evaluation Period (s)| epmin      | xs:decimal (>0) |
+| Maximum Evaluation Period (s)| epmax      | xs:decimal (>0) |
 {: #weblinkattributes title="Conditional Notification Attributes"}
 
-Conditional Notification Attributes SHOULD be evaluated on all potential notifications from a resource, whether resulting from an internal server-driven sampling process or from external update requests to the server.
+Conditional Notification Attributes SHOULD be evaluated on all potential notifications from a resource, whether resulting from an internal server-driven sampling process or from external update requests to the server. Conditional Control Attributes are used to configure the server for performing measurements of the conditions of a resource. 
 
 Note: In this draft, we assume that there are finite quantization effects in the internal or external updates to the value of a resource; specifically, that a resource may be updated at any time with any valid value. We therefore avoid any continuous-time assumptions in the description of the Conditional Notification Attributes and instead use the phrase "sampled value" to refer to a member of a sequence of values that may be internally observed from the resource state over time.
  
@@ -153,9 +155,21 @@ If the band is specified in which the value of gt is greater than that of lt, ou
 
 The Notification Band parameter can only be supported on resources with a scalar numeric value. 
 
+###Minimum Evaluation Period (epmin) {#epmin}
+
+When present, the minimum evaluation period indicates the minimum time, in seconds, the server MUST wait between two consecutive evaluations of measurement conditions of a resource. In the absence of this parameter, the minimum evaluation period is not defined and thus not used by the server. The minimum evaluation period MUST be greater than zero otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
+
+After the expiry of epmin, the server MAY immediately perform an evaluation per the Notification Attributes.
+
+###Maximum Evaluation Period (epmax) {#epmax}
+
+When present, the maximum evaluation period indicates the maximum time, in seconds, the server MAY wait between two consecutive evaluations of measurement conditions of a resource. When the maximum evaluation period expires after the previous measurement, a new measurement MUST occur. In the absence of this parameter, the maximum evaluation period is not defined and thus not used by the server. The maximum evaluation period MUST be greater than zero otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
+
+If both the epmin and epmax attributes are defined, the epmax MUST be greater than epmin, otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
+
 ## Server processing of Conditional Notification Attributes
 
-Pmin, pmax, st, gt, lt and band may be present in the same query. Howver, they are not defined at multiple prioritization levels. The server sends a notification whenever any of the parameter conditions are met, upon which it updates its last notification value and time to prepare for the next notification. Only one notification occurs when there are multiple conditions being met at the same time. The reference code below illustrates the logic to determine when a notification is to be sent.
+Pmin, pmax, st, gt, lt and band may be present in the same query. However, they are not defined at multiple prioritization levels. The server sends a notification whenever any of the parameter conditions are met, upon which it updates its last notification value and time to prepare for the next notification. Only one notification occurs when there are multiple conditions being met at the same time. The reference code below illustrates the logic to determine when a notification is to be sent.
 
 ~~~~
 bool notifiable( Resource * r ) {
