@@ -101,9 +101,9 @@ These attributes are defined below:
 | Notification Band | band     | xs:boolean      |
 | Minimum Evaluation Period (s)| epmin      | xs:decimal (>0) |
 | Maximum Evaluation Period (s)| epmax      | xs:decimal (>0) |
-{: #weblinkattributes title="Conditional Notification Attributes"}
+{: #weblinkattributes title="Conditional Notification and Control Attributes"}
 
-Conditional Notification Attributes SHOULD be evaluated on all potential notifications from a resource, whether resulting from an internal server-driven sampling process or from external update requests to the server. Conditional Control Attributes are used to configure the server for performing measurements of the conditions of a resource. 
+Conditional Notification Attributes SHOULD be evaluated on all potential notifications from a resource, whether resulting from an internal server-driven sampling process or from external update requests to the server. Conditional Control Attributes are used to configure the internal server-driven sampling process for performing measurements of the conditions of a resource. 
 
 Note: In this draft, we assume that there are finite quantization effects in the internal or external updates to the value of a resource; specifically, that a resource may be updated at any time with any valid value. We therefore avoid any continuous-time assumptions in the description of the Conditional Notification Attributes and instead use the phrase "sampled value" to refer to a member of a sequence of values that may be internally observed from the resource state over time.
  
