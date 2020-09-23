@@ -82,7 +82,7 @@ Conditional Notification and Control Attributes        {#binding_attributes}
 
 ## Attribute Definitions
 
-This specification defines Conditional Notification and Control Attributes, which provide for fine-grained control of notification and state synchronization when using CoRE Observe {{RFC7641}} or Link Bindings (see {{bindings}}). Conditional Notification Attributes define the conditions that trigger a notification. Conditional Control Attributes define the measurements of the conditions that trigger a notification. 
+This specification defines Conditional Notification and Control Attributes, which provide for fine-grained control of notification and state synchronization when using CoRE Observe {{RFC7641}} or Link Bindings (see {{bindings}}). Conditional Notification Attributes define the conditions that trigger a notification. Conditional Control Attributes define the cadence of the measurement of the conditions that trigger a notification. 
 
 When resource interfaces following this specification are made available over CoAP, the CoAP Observation mechanism {{RFC7641}} MAY also be used to observe any changes in a resource, and receive asynchronous notifications as a result. A resource marked as Observable in its link description SHOULD support these Conditional Notification and Control Attributes.
 
