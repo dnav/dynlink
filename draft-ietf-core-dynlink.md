@@ -157,13 +157,11 @@ The Notification Band parameter can only be supported on resources with a scalar
 
 ###Minimum Evaluation Period (epmin) {#epmin}
 
-When present, the minimum evaluation period indicates the minimum time, in seconds, the server MUST wait between two consecutive measurements of the conditions of a resource. In the absence of this parameter, the minimum evaluation period is not defined and thus not used by the server. The minimum evaluation period MUST be greater than zero otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
-
-After the expiry of epmin, the server MAY immediately perform an evaluation per the Notification Attributes.
+When present, the minimum evaluation period indicates the minimum time, in seconds, the server MUST wait between two consecutive measurements of the conditions of a resource. When the minimum evaluation period expires after the previous measurement, the server MAY immediately perform a new measurement. In the absence of this parameter, the minimum evaluation period is not defined and thus not used by the server. The minimum evaluation period MUST be greater than zero otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
 
 ###Maximum Evaluation Period (epmax) {#epmax}
 
-When present, the maximum evaluation period indicates the maximum time, in seconds, the server MAY wait between two consecutive measurements of the conditions of a resource. When the maximum evaluation period expires after the previous measurement, a new measurement MUST occur. In the absence of this parameter, the maximum evaluation period is not defined and thus not used by the server. The maximum evaluation period MUST be greater than zero otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
+When present, the maximum evaluation period indicates the maximum time, in seconds, the server MAY wait between two consecutive measurements of the conditions of a resource. When the maximum evaluation period expires after the previous measurement, the server MUST immediately perform a new measurement. In the absence of this parameter, the maximum evaluation period is not defined and thus not used by the server. The maximum evaluation period MUST be greater than zero otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
 
 If both the epmin and epmax attributes are defined, the epmax MUST be greater than epmin, otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
 
