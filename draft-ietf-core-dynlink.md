@@ -46,7 +46,7 @@ informative:
 
 --- abstract
 
-This specification defines Link Bindings, which provide dynamic linking of state updates between resources, either on an endpoint or between endpoints, for systems using CoAP (RFC7252). This specification also defines Conditional Notification Attributes and Control Attributes that work with Link Bindings or with CoAP Observe (RFC7641).
+This specification defines Link Bindings, which provide dynamic linking of state updates between resources, either on an endpoint or between endpoints, for systems using CoAP (RFC7252). This specification also defines Conditional Notification and Control Attributes that work with Link Bindings or with CoAP Observe (RFC7641).
  
 --- note_Editor_note
  
@@ -59,7 +59,7 @@ Introduction        {#introduction}
 
 IETF Standards for machine to machine communication in constrained environments describe a REST protocol {{-coap}} and a set of related information standards that may be used to represent machine data and machine metadata in REST interfaces. CoRE Link-format {{-link-format}} is a standard for doing Web Linking {{-link}} in constrained environments. 
 
-This specification introduces the concept of a Link Binding, which defines a new link relation type to create a dynamic link between resources over which state updates are conveyed. Specifically, a Link Binding is a unidirectional link for binding the states of source and destination resources together such that updates to one are sent over the link to the other. CoRE Link Format representations are used to configure, inspect, and maintain Link Bindings. This specification additionally defines Conditional Notification Attributes and Control Attributes for use with Link Bindings and with CoRE Observe {{RFC7641}}.
+This specification introduces the concept of a Link Binding, which defines a new link relation type to create a dynamic link between resources over which state updates are conveyed. Specifically, a Link Binding is a unidirectional link for binding the states of source and destination resources together such that updates to one are sent over the link to the other. CoRE Link Format representations are used to configure, inspect, and maintain Link Bindings. This specification additionally defines Conditional Notification and Control Attributes for use with Link Bindings and with CoRE Observe {{RFC7641}}.
 
 Terminology     {#terminology}
 ===========
