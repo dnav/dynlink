@@ -168,9 +168,7 @@ When present, the minimum evaluation period indicates the minimum time, in secon
 
 ###Maximum Evaluation Period (epmax) {#epmax}
 
-When present, the maximum evaluation period indicates the maximum time, in seconds, the server MAY wait between two consecutive measurements of the conditions of a resource. When the maximum evaluation period expires after the previous measurement, the server MUST immediately perform a new measurement. In the absence of this parameter, the maximum evaluation period is not defined and thus not used by the server. The maximum evaluation period MUST be greater than zero otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
-
-If both the epmin and epmax attributes are defined, the epmax MUST be greater than epmin, otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
+When present, the maximum evaluation period indicates the maximum time, in seconds, the server MAY wait between two consecutive measurements of the conditions of a resource. When the maximum evaluation period expires after the previous measurement, the server MUST immediately perform a new measurement. In the absence of this parameter, the maximum evaluation period is not defined and thus not used by the server. The maximum evaluation period MUST be greater than zero and MUST be greater than the minimum evaluation period parameter (if present) otherwise the receiver MUST return a CoAP error code 4.00 "Bad Request" (or equivalent).
 
 ## Server processing of Conditional Notification Attributes
 
