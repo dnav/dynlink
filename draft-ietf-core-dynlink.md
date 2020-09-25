@@ -93,7 +93,6 @@ One or more Notification Attributes MAY be included as query parameters in an Ob
 Conditional Notification Attributes are defined below:
 
 | Attribute         | Parameter | Value            |
-| Change Step       | st       | xs:decimal (>0) |
 | Greater Than      | gt       | xs:decimal      |
 | Less Than         | lt       | xs:decimal      |
 | Notification Band | band     | xs:boolean      |
@@ -106,6 +105,7 @@ Conditional Control Attributes are defined below:
 | Attribute         | Parameter | Value            |
 | Minimum Period (s)| pmin      | xs:decimal (>0) |
 | Maximum Period (s)| pmax      | xs:decimal (>0) |
+| Change Step       | st        | xs:decimal (>0) |
 | Minimum Evaluation Period (s)| epmin      | xs:decimal (>0) |
 | Maximum Evaluation Period (s)| epmax      | xs:decimal (>0) |
 {: #weblinkattributes title="Conditional Control Attributes"}
@@ -224,13 +224,15 @@ A binding method defines the rules to generate the network-transfer exchanges th
 This specification defines a new CoRE link attribute &quot;bind&quot;. This is the identifier for a binding method which defines the rules to synchronize the destination resource. This attribute is mandatory.
 
 | Attribute         | Parameter | Value            |
+| --- | --- | --- |
 | Binding method    | bind      | xs:string        |
 {: #bindattribute title="The bind attribute"}
 
 The following table gives a summary of the binding methods defined in this specification.
 
  | Name    | Identifier  | Location    | Method        |
- | Polling | poll        | Destination | GET           |
+ | --- | --- | --- | --- |
+| Polling | poll        | Destination | GET           |
  | Observe | obs         | Destination | GET + Observe |
  | Push    | push        | Source      | PUT           |
  | Execute | exec        | Source      | POST          |
@@ -282,6 +284,7 @@ The Binding Table is a special resource that describes the bindings on an endpoi
 The Methods column defines the REST methods supported by the Binding Table, which are described in more detail below. 
 
 | Resource      | rt=      | Methods  | Content-Format |
+| --- | --- | --- | --- |
 | Binding Table | core.bnd | GET, PUT | link-format    |
 {: #intdesc title="Binding Table Description"}
 
