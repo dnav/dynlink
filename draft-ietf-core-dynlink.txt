@@ -17,8 +17,9 @@ Abstract
    This specification defines Link Bindings, which provide dynamic
    linking of state updates between resources, either on an endpoint or
    between endpoints, for systems using CoAP (RFC7252).  This
-   specification also defines Conditional Notification Attributes that
-   work with Link Bindings or with CoAP Observe (RFC7641).
+   specification also defines Conditional Notification and Control
+   Attributes that work with Link Bindings or with CoAP Observe
+   (RFC7641).
 
 Editor note
 
@@ -47,9 +48,8 @@ Copyright Notice
    Copyright (c) 2020 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
-   This document is subject to BCP 78 and the IETF Trust's Legal
-   Provisions Relating to IETF Documents (https://trustee.ietf.org/
-   license-info) in effect on the date of publication of this document.
+
+
 
 
 
@@ -58,6 +58,9 @@ Koster & Silverajan      Expires 14 January 2021                [Page 1]
 Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
 
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
    Please review these documents carefully, as they describe your rights
    and restrictions with respect to this document.  Code Components
    extracted from this document must include Simplified BSD License text
@@ -68,44 +71,41 @@ Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
    2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   3
-   3.  Conditional Notification Attributes . . . . . . . . . . . . .   4
+   3.  Conditional Notification and Control Attributes . . . . . . .   4
      3.1.  Attribute Definitions . . . . . . . . . . . . . . . . . .   4
        3.1.1.  Minimum Period (pmin) . . . . . . . . . . . . . . . .   5
-       3.1.2.  Maximum Period (pmax) . . . . . . . . . . . . . . . .   5
+       3.1.2.  Maximum Period (pmax) . . . . . . . . . . . . . . . .   6
        3.1.3.  Change Step (st)  . . . . . . . . . . . . . . . . . .   6
        3.1.4.  Greater Than (gt) . . . . . . . . . . . . . . . . . .   6
-       3.1.5.  Less Than (lt)  . . . . . . . . . . . . . . . . . . .   6
+       3.1.5.  Less Than (lt)  . . . . . . . . . . . . . . . . . . .   7
        3.1.6.  Notification Band (band)  . . . . . . . . . . . . . .   7
+       3.1.7.  Minimum Evaluation Period (epmin) . . . . . . . . . .   8
+       3.1.8.  Maximum Evaluation Period (epmax) . . . . . . . . . .   8
      3.2.  Server processing of Conditional Notification
-           Attributes  . . . . . . . . . . . . . . . . . . . . . . .   8
-   4.  Link Bindings . . . . . . . . . . . . . . . . . . . . . . . .   9
-     4.1.  The "bind" attribute and Binding Methods  . . . . . . . .   9
-       4.1.1.  Polling . . . . . . . . . . . . . . . . . . . . . . .  11
-       4.1.2.  Observe . . . . . . . . . . . . . . . . . . . . . . .  11
-       4.1.3.  Push  . . . . . . . . . . . . . . . . . . . . . . . .  11
-       4.1.4.  Execute . . . . . . . . . . . . . . . . . . . . . . .  11
-     4.2.  Link Relation . . . . . . . . . . . . . . . . . . . . . .  12
-   5.  Binding Table . . . . . . . . . . . . . . . . . . . . . . . .  12
-   6.  Implementation Considerations . . . . . . . . . . . . . . . .  13
-   7.  Security Considerations . . . . . . . . . . . . . . . . . . .  14
-   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  14
-     8.1.  Resource Type value 'core.bnd'  . . . . . . . . . . . . .  14
-     8.2.  Link Relation Type  . . . . . . . . . . . . . . . . . . .  14
-   9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  15
-   10. Contributors  . . . . . . . . . . . . . . . . . . . . . . . .  15
-   11. Changelog . . . . . . . . . . . . . . . . . . . . . . . . . .  16
-   12. References  . . . . . . . . . . . . . . . . . . . . . . . . .  18
-     12.1.  Normative References . . . . . . . . . . . . . . . . . .  18
-     12.2.  Informative References . . . . . . . . . . . . . . . . .  18
-   Appendix A.  Examples . . . . . . . . . . . . . . . . . . . . . .  19
-     A.1.  Minimum Period (pmin) example . . . . . . . . . . . . . .  19
-     A.2.  Maximum Period (pmax) example . . . . . . . . . . . . . .  20
-     A.3.  Greater Than (gt) example . . . . . . . . . . . . . . . .  22
-     A.4.  Greater Than (gt) and Period Max (pmax) example . . . . .  22
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  24
-
-
-
+           Attributes  . . . . . . . . . . . . . . . . . . . . . . .   9
+   4.  Link Bindings . . . . . . . . . . . . . . . . . . . . . . . .  10
+     4.1.  The "bind" attribute and Binding Methods  . . . . . . . .  10
+       4.1.1.  Polling . . . . . . . . . . . . . . . . . . . . . . .  12
+       4.1.2.  Observe . . . . . . . . . . . . . . . . . . . . . . .  12
+       4.1.3.  Push  . . . . . . . . . . . . . . . . . . . . . . . .  12
+       4.1.4.  Execute . . . . . . . . . . . . . . . . . . . . . . .  12
+     4.2.  Link Relation . . . . . . . . . . . . . . . . . . . . . .  13
+   5.  Binding Table . . . . . . . . . . . . . . . . . . . . . . . .  13
+   6.  Implementation Considerations . . . . . . . . . . . . . . . .  14
+   7.  Security Considerations . . . . . . . . . . . . . . . . . . .  15
+   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  15
+     8.1.  Resource Type value 'core.bnd'  . . . . . . . . . . . . .  15
+     8.2.  Link Relation Type  . . . . . . . . . . . . . . . . . . .  15
+   9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  16
+   10. Contributors  . . . . . . . . . . . . . . . . . . . . . . . .  16
+   11. Changelog . . . . . . . . . . . . . . . . . . . . . . . . . .  17
+   12. References  . . . . . . . . . . . . . . . . . . . . . . . . .  19
+     12.1.  Normative References . . . . . . . . . . . . . . . . . .  19
+     12.2.  Informative References . . . . . . . . . . . . . . . . .  20
+   Appendix A.  Examples . . . . . . . . . . . . . . . . . . . . . .  20
+     A.1.  Minimum Period (pmin) example . . . . . . . . . . . . . .  20
+     A.2.  Maximum Period (pmax) example . . . . . . . . . . . . . .  21
+     A.3.  Greater Than (gt) example . . . . . . . . . . . . . . . .  23
 
 
 
@@ -113,6 +113,9 @@ Koster & Silverajan      Expires 14 January 2021                [Page 2]
 
 Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
+
+     A.4.  Greater Than (gt) and Period Max (pmax) example . . . . .  23
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  25
 
 1.  Introduction
 
@@ -130,8 +133,8 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
    are sent over the link to the other.  CoRE Link Format
    representations are used to configure, inspect, and maintain Link
    Bindings.  This specification additionally defines Conditional
-   Notification Attributes for use with Link Bindings and with CoRE
-   Observe [RFC7641].
+   Notification and Control Attributes for use with Link Bindings and
+   with CoRE Observe [RFC7641].
 
 2.  Terminology
 
@@ -157,9 +160,6 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
       synchronization is the synchronization initiator.
 
    Notification Band:  A resource value range that results in state
-      sychronization.  The value range may be bounded by a minimum and
-      maximum value or may be unbounded having either a minimum or
-      maximum value.
 
 
 
@@ -170,54 +170,54 @@ Koster & Silverajan      Expires 14 January 2021                [Page 3]
 Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
 
-3.  Conditional Notification Attributes
+      sychronization.  The value range may be bounded by a minimum and
+      maximum value or may be unbounded having either a minimum or
+      maximum value.
+
+3.  Conditional Notification and Control Attributes
 
 3.1.  Attribute Definitions
 
-   This specification defines Conditional Notification Attributes, which
-   provide for fine-grained control of notification and state
-   synchronization when using CoRE Observe [RFC7641] or Link Bindings
-   (see Section 4).  Conditional Notification Attributes define the
-   conditions that trigger a notification.
+   This specification defines Conditional Notification and Control
+   Attributes, which provide for fine-grained control of notification
+   and state synchronization when using CoRE Observe [RFC7641] or Link
+   Bindings (see Section 4).  Conditional Notification Attributes define
+   the conditions that trigger a notification.  Conditional Control
+   Attributes define the cadence of the measurement of the conditions
+   that trigger a notification.
 
    When resource interfaces following this specification are made
    available over CoAP, the CoAP Observation mechanism [RFC7641] MAY
    also be used to observe any changes in a resource, and receive
    asynchronous notifications as a result.  A resource marked as
    Observable in its link description SHOULD support these Conditional
-   Notification Attributes.
+   Notification and Control Attributes.
 
-   The set of parameters defined here allow a client to control how
-   often a client is interested in receiving notifications and how much
-   a resource value should change for the new representation to be
-   interesting.
+   The set of Notification Attributes defined here allow a client to
+   control how often a client is interested in receiving notifications
+   and how much a resource value should change for the new
+   representation to be interesting.  The set of Control Attributes
+   defined here allow a client to control how often the server performs
+   a measurement of the conditions.
 
    One or more Notification Attributes MAY be included as query
    parameters in an Observe request.
 
-   These attributes are defined below:
+   Conditional Notification Attributes are defined below:
 
-           +====================+===========+=================+
-           | Attribute          | Parameter | Value           |
-           +====================+===========+=================+
-           | Minimum Period (s) | pmin      | xs:decimal (>0) |
-           +--------------------+-----------+-----------------+
-           | Maximum Period (s) | pmax      | xs:decimal (>0) |
-           +--------------------+-----------+-----------------+
-           | Change Step        | st        | xs:decimal (>0) |
-           +--------------------+-----------+-----------------+
-           | Greater Than       | gt        | xs:decimal      |
-           +--------------------+-----------+-----------------+
-           | Less Than          | lt        | xs:decimal      |
-           +--------------------+-----------+-----------------+
-           | Notification Band  | band      | xs:boolean      |
-           +--------------------+-----------+-----------------+
+            +===================+===========+=================+
+            | Attribute         | Parameter | Value           |
+            +===================+===========+=================+
+            | Greater Than      | gt        | xs:decimal      |
+            +-------------------+-----------+-----------------+
+            | Less Than         | lt        | xs:decimal      |
+            +-------------------+-----------+-----------------+
+            | Change Step       | st        | xs:decimal (>0) |
+            +-------------------+-----------+-----------------+
+            | Notification Band | band      | xs:boolean      |
+            +-------------------+-----------+-----------------+
 
-               Table 1: Conditional Notification Attributes
-
-
-
-
+                Table 1: Conditional Notification Attributes
 
 
 
@@ -226,10 +226,31 @@ Koster & Silverajan      Expires 14 January 2021                [Page 4]
 Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
 
+   One or more Control Attributes MAY be included as query parameters in
+   an Observe request.
+
+   Conditional Control Attributes are defined below:
+
+      +===============================+===========+=================+
+      | Attribute                     | Parameter | Value           |
+      +===============================+===========+=================+
+      | Minimum Period (s)            | pmin      | xs:decimal (>0) |
+      +-------------------------------+-----------+-----------------+
+      | Maximum Period (s)            | pmax      | xs:decimal (>0) |
+      +-------------------------------+-----------+-----------------+
+      | Minimum Evaluation Period (s) | epmin     | xs:decimal (>0) |
+      +-------------------------------+-----------+-----------------+
+      | Maximum Evaluation Period (s) | epmax     | xs:decimal (>0) |
+      +-------------------------------+-----------+-----------------+
+
+                  Table 2: Conditional Control Attributes
+
    Conditional Notification Attributes SHOULD be evaluated on all
    potential notifications from a resource, whether resulting from an
    internal server-driven sampling process or from external update
-   requests to the server.
+   requests to the server.  Conditional Control Attributes are used to
+   configure the internal server-driven sampling process for performing
+   measurements of the conditions of a resource.
 
    Note: In this draft, we assume that there are finite quantization
    effects in the internal or external updates to the value of a
@@ -252,6 +273,15 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
    A server MAY report the last sampled value that occured during the
    pmin interval, after the pmin interval expires.
 
+
+
+
+
+Koster & Silverajan      Expires 14 January 2021                [Page 5]
+
+Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
+
+
    Note: Due to finite quantization effects, the time between
    notifications may be greater than pmin even when the sampled value
    changes within the pmin interval.  Pmin may or may not be used to
@@ -266,21 +296,6 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
    greater than zero and MUST be greater than the minimum period
    parameter (if present) otherwise the receiver MUST return a CoAP
    error code 4.00 "Bad Request" (or equivalent).
-
-
-
-
-
-
-
-
-
-
-
-Koster & Silverajan      Expires 14 January 2021                [Page 5]
-
-Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
-
 
 3.1.3.  Change Step (st)
 
@@ -316,6 +331,13 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
    below the upper limit value then a notification is sent, subject
    again to the pmin time.
 
+
+
+Koster & Silverajan      Expires 14 January 2021                [Page 6]
+
+Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
+
+
    The Greater Than parameter can only be supported on resources with a
    scalar numeric value.
 
@@ -330,13 +352,6 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
    are generated as a result of lt.  If the value rises above the lower
    limit value then a new notification is sent, subject to the pmin
    time..
-
-
-
-Koster & Silverajan      Expires 14 January 2021                [Page 6]
-
-Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
-
 
    The Less Than parameter can only be supported on resources with a
    scalar numeric value.
@@ -367,6 +382,18 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
    notification band minimum.  If lt is not present there is no minimum
    value for the band.
 
+
+
+
+
+
+
+
+Koster & Silverajan      Expires 14 January 2021                [Page 7]
+
+Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
+
+
    When band is present with the gt attribute, it defines the upper
    bound for the notification band (notification band maximum).
    Notifications occur when the resource value is equal to or below the
@@ -387,20 +414,49 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
    occurs when the resource value not between the gt and lt values,
    excluding equal to gt and lt.
 
+   The Notification Band parameter can only be supported on resources
+   with a scalar numeric value.
+
+3.1.7.  Minimum Evaluation Period (epmin)
+
+   When present, the minimum evaluation period indicates the minimum
+   time, in seconds, the client recommends to the server to wait between
+   two consecutive measurements of the conditions of a resource since
+   the client has no interest in the server doing more frequent
+   measurements.  When the minimum evaluation period expires after the
+   previous measurement, the server MAY immediately perform a new
+   measurement.  In the absence of this parameter, the minimum
+   evaluation period is not defined and thus not used by the server.
+   The server MAY use pmin, if defined, as a guidance on the desired
+   measurement cadence.  The minimum evaluation period MUST be greater
+   than zero otherwise the receiver MUST return a CoAP error code 4.00
+   "Bad Request" (or equivalent).
+
+3.1.8.  Maximum Evaluation Period (epmax)
+
+   When present, the maximum evaluation period indicates the maximum
+   time, in seconds, the server MAY wait between two consecutive
+   measurements of the conditions of a resource.  When the maximum
+   evaluation period expires after the previous measurement, the server
+   MUST immediately perform a new measurement.  In the absence of this
+   parameter, the maximum evaluation period is not defined and thus not
+   used by the server.  The maximum evaluation period MUST be greater
+   than zero and MUST be greater than the minimum evaluation period
 
 
-Koster & Silverajan      Expires 14 January 2021                [Page 7]
+
+Koster & Silverajan      Expires 14 January 2021                [Page 8]
 
 Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
 
-   The Notification Band parameter can only be supported on resources
-   with a scalar numeric value.
+   parameter (if present) otherwise the receiver MUST return a CoAP
+   error code 4.00 "Bad Request" (or equivalent).
 
 3.2.  Server processing of Conditional Notification Attributes
 
    Pmin, pmax, st, gt, lt and band may be present in the same query.
-   Howver, they are not defined at multiple prioritization levels.  The
+   However, they are not defined at multiple prioritization levels.  The
    server sends a notification whenever any of the parameter conditions
    are met, upon which it updates its last notification value and time
    to prepare for the next notification.  Only one notification occurs
@@ -445,7 +501,7 @@ bool notifiable( Resource * r ) {
 
 
 
-Koster & Silverajan      Expires 14 January 2021                [Page 8]
+Koster & Silverajan      Expires 14 January 2021                [Page 9]
 
 Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
@@ -501,7 +557,7 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
 
 
-Koster & Silverajan      Expires 14 January 2021                [Page 9]
+Koster & Silverajan      Expires 14 January 2021               [Page 10]
 
 Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
@@ -512,7 +568,7 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
                 | Binding method | bind      | xs:string |
                 +----------------+-----------+-----------+
 
-                       Table 2: The bind attribute
+                       Table 3: The bind attribute
 
    The following table gives a summary of the binding methods defined in
    this specification.
@@ -529,7 +585,7 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
           | Execute | exec       | Source      | POST          |
           +---------+------------+-------------+---------------+
 
-                     Table 3: Binding Method Summary
+                     Table 4: Binding Method Summary
 
    The description of a binding method defines the following aspects:
 
@@ -557,7 +613,7 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
 
 
-Koster & Silverajan      Expires 14 January 2021               [Page 10]
+Koster & Silverajan      Expires 14 January 2021               [Page 11]
 
 Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
@@ -613,7 +669,7 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
 
 
-Koster & Silverajan      Expires 14 January 2021               [Page 11]
+Koster & Silverajan      Expires 14 January 2021               [Page 12]
 
 Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
@@ -654,7 +710,7 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
          | Binding Table | core.bnd | GET, PUT | link-format    |
          +---------------+----------+----------+----------------+
 
-                    Table 4: Binding Table Description
+                    Table 5: Binding Table Description
 
    The REST methods GET and PUT are used to manipulate a Binding Table.
    A GET request simply returns the current state of a Binding Table.  A
@@ -669,7 +725,7 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
 
 
-Koster & Silverajan      Expires 14 January 2021               [Page 12]
+Koster & Silverajan      Expires 14 January 2021               [Page 13]
 
 Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
@@ -716,16 +772,16 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
    The use of the notification band minimum and maximum allow for a
    synchronization whenever a change in the resource value occurs.
    Theoretically this could occur in-line with the server internal
-   sample period for the determining the resource value.  Implementors
-   SHOULD consider the resolution needed before updating the resource,
-   e.g. updating the resource when a temperature sensor value changes by
-   0.001 degree versus 1 degree.
+   sample period or the configuration of epmin and epmax values for
+   determining the resource value.  Implementors SHOULD consider the
+   resolution needed before updating the resource, e.g. updating the
+   resource when a temperature sensor value changes by 0.001 degree
+   versus 1 degree.
 
 
 
 
-
-Koster & Silverajan      Expires 14 January 2021               [Page 13]
+Koster & Silverajan      Expires 14 January 2021               [Page 14]
 
 Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
@@ -736,6 +792,11 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
    to how to monitor transactions made by the configuration tool with
    regards to Link Bindings, as well as any errors that may arise with
    establishing Link Bindings in addition to established Link Bindings.
+
+   When a server has multiple observations with different measurement
+   cadences as defined by the epmin and epmax values, the server MAY
+   evaluate all observations when performing the measurement of any one
+   observation.
 
 7.  Security Considerations
 
@@ -773,18 +834,18 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
    Relation Name:  boundto
 
+
+
+
+Koster & Silverajan      Expires 14 January 2021               [Page 15]
+
+Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
+
+
    Description:  The purpose of a boundto relation type is to indicate
       that there is a binding between a source resource and a
       destination resource for the purposes of synchronizing their
       content.
-
-
-
-
-Koster & Silverajan      Expires 14 January 2021               [Page 14]
-
-Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
-
 
    Reference:  This specification.  Note to RFC editor: please insert
       the RFC of this specification.
@@ -809,6 +870,34 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
 10.  Contributors
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Koster & Silverajan      Expires 14 January 2021               [Page 16]
+
+Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
+
+
    Christian Groves
    Australia
    email: cngroves.std@gmail.com
@@ -832,15 +921,6 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
    Xi’an, Shaanxi Province
    China
    email: jintao.zhu@huawei.com
-
-
-
-
-
-Koster & Silverajan      Expires 14 January 2021               [Page 15]
-
-Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
-
 
 11.  Changelog
 
@@ -867,6 +947,13 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
    *  Reorganize the draft to introduce Conditional Notification
       Attributes at the beginning
 
+
+
+Koster & Silverajan      Expires 14 January 2021               [Page 17]
+
+Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
+
+
    *  Made pmin and pmax type xs:decimal to accommodate fractional
       second timing
 
@@ -890,13 +977,6 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
    *  Implementation considerations introduced
 
    *  Additional text on security considerations
-
-
-
-Koster & Silverajan      Expires 14 January 2021               [Page 16]
-
-Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
-
 
    draft-ietf-core-dynlink-05
 
@@ -923,6 +1003,13 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
    *  Clause 6.1: Addressed the editor's note by changing the link
       target attribute to "core.binding".
 
+
+
+Koster & Silverajan      Expires 14 January 2021               [Page 18]
+
+Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
+
+
    *  Added Appendix A for examples.
 
    draft-ietf-core-dynlink-01
@@ -946,14 +1033,6 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
    *  Clause 4.1: Added a clarification that individual resources may be
       removed from the binding table.
 
-
-
-
-Koster & Silverajan      Expires 14 January 2021               [Page 17]
-
-Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
-
-
    *  Clause 6: Formailised the IANA considerations.
 
    draft-ietf-core-dynlink Initial Version 00:
@@ -976,6 +1055,16 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
+
+
+
+
+
+
+Koster & Silverajan      Expires 14 January 2021               [Page 19]
+
+Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
+
 
    [RFC6690]  Shelby, Z., "Constrained RESTful Environments (CoRE) Link
               Format", RFC 6690, DOI 10.17487/RFC6690, August 2012,
@@ -1003,13 +1092,6 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
               DOI 10.17487/RFC7252, June 2014,
               <https://www.rfc-editor.org/info/rfc7252>.
 
-
-
-Koster & Silverajan      Expires 14 January 2021               [Page 18]
-
-Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
-
-
    [RFC7641]  Hartke, K., "Observing Resources in the Constrained
               Application Protocol (CoAP)", RFC 7641,
               DOI 10.17487/RFC7641, September 2015,
@@ -1029,6 +1111,16 @@ Appendix A.  Examples
    the header field.
 
 A.1.  Minimum Period (pmin) example
+
+
+
+
+
+
+Koster & Silverajan      Expires 14 January 2021               [Page 20]
+
+Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
+
 
            Observed   CLIENT  SERVER     Actual
        t   State         |      |         State
@@ -1059,13 +1151,6 @@ A.1.  Minimum Period (pmin) example
       24                 |      |
       25                 |      |
 
-
-
-Koster & Silverajan      Expires 14 January 2021               [Page 19]
-
-Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
-
-
       Figure 3: Client registers and receives one notification of the
          current state and one of a new state state when pmin time
                                   expires.
@@ -1088,36 +1173,7 @@ A.2.  Maximum Period (pmax) example
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Koster & Silverajan      Expires 14 January 2021               [Page 20]
+Koster & Silverajan      Expires 14 January 2021               [Page 21]
 
 Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
@@ -1173,7 +1229,7 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
 
 
-Koster & Silverajan      Expires 14 January 2021               [Page 21]
+Koster & Silverajan      Expires 14 January 2021               [Page 22]
 
 Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
@@ -1229,7 +1285,7 @@ A.4.  Greater Than (gt) and Period Max (pmax) example
 
 
 
-Koster & Silverajan      Expires 14 January 2021               [Page 22]
+Koster & Silverajan      Expires 14 January 2021               [Page 23]
 
 Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
@@ -1285,7 +1341,7 @@ Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
 
 
-Koster & Silverajan      Expires 14 January 2021               [Page 23]
+Koster & Silverajan      Expires 14 January 2021               [Page 24]
 
 Internet-Draft      Dynamic Resource Linking for CoRE          July 2020
 
@@ -1341,4 +1397,4 @@ Authors' Addresses
 
 
 
-Koster & Silverajan      Expires 14 January 2021               [Page 24]
+Koster & Silverajan      Expires 14 January 2021               [Page 25]
