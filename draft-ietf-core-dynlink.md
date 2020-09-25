@@ -93,6 +93,7 @@ One or more Notification Attributes MAY be included as query parameters in an Ob
 Conditional Notification Attributes are defined below:
 
 | Attribute         | Parameter | Value            |
+| .. | .. | .. |
 | Greater Than      | gt       | xs:decimal      |
 | Less Than         | lt       | xs:decimal      |
 | Change Step       | st       | xs:decimal (>0) |
@@ -104,6 +105,7 @@ One or more Control Attributes MAY be included as query parameters in an Observe
 Conditional Control Attributes are defined below:
 
 | Attribute         | Parameter | Value            |
+| .. | .. | .. |
 | Minimum Period (s)| pmin      | xs:decimal (>0) |
 | Maximum Period (s)| pmax      | xs:decimal (>0) |
 | Minimum Evaluation Period (s)| epmin      | xs:decimal (>0) |
