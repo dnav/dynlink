@@ -95,8 +95,9 @@ Conditional Notification Attributes are defined below:
 | Attribute         | Parameter | Value            |
 | Greater Than      | gt       | xs:decimal      |
 | Less Than         | lt       | xs:decimal      |
+| Change Step       | st       | xs:decimal (>0) |
 | Notification Band | band     | xs:boolean      |
-{: #weblinkattributes title="Conditional Notification Attributes"}
+{: #notificationattributes title="Conditional Notification Attributes"}
 
 One or more Control Attributes MAY be included as query parameters in an Observe request.
 
@@ -105,10 +106,9 @@ Conditional Control Attributes are defined below:
 | Attribute         | Parameter | Value            |
 | Minimum Period (s)| pmin      | xs:decimal (>0) |
 | Maximum Period (s)| pmax      | xs:decimal (>0) |
-| Change Step       | st        | xs:decimal (>0) |
 | Minimum Evaluation Period (s)| epmin      | xs:decimal (>0) |
 | Maximum Evaluation Period (s)| epmax      | xs:decimal (>0) |
-{: #weblinkattributes title="Conditional Control Attributes"}
+{: #controlattributes title="Conditional Control Attributes"}
 
 Conditional Notification Attributes SHOULD be evaluated on all potential notifications from a resource, whether resulting from an internal server-driven sampling process or from external update requests to the server. Conditional Control Attributes are used to configure the internal server-driven sampling process for performing measurements of the conditions of a resource. 
 
